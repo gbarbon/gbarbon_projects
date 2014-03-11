@@ -10,13 +10,14 @@
 
 #include <mpi.h>
 #include <stdio.h>
+#include <cstdlib>
 #include <stdlib.h>
 #include <math.h>
 
 #define TAG 13
 
 int* coordinate(int procNum, int totalProc) {
-    int* coord = calloc(2, sizeof (int));
+    int* coord = (int*) calloc(2, sizeof (int)); //aggiunto (int*)
     int var;
     var = sqrt(totalProc);
     coord[0] = procNum / var;
@@ -155,7 +156,7 @@ int main(int argc, char *argv[]) {
 
     if (myrank != 0) {
 
-        int **blocchiA, **blocchiB;
+        double **blocchiA, **blocchiB;
 
         tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
         blocchiA = (double **) malloc(sizeof (double *) * N / numnodes);
