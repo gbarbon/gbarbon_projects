@@ -30,11 +30,21 @@
   <confs>
     <conf name="Debug" type="1">
       <toolsSet>
-        <compilerSet>OpenMPI|GNU</compilerSet>
+        <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <ccTool>
+          <commandlineTool>mpicc</commandlineTool>
+        </ccTool>
+        <linkerTool>
+          <commandlineTool>openmpic++</commandlineTool>
+          <linkerLibItems>
+            <linkerLibStdlibItem>Mathematics</linkerLibStdlibItem>
+            <linkerOptionItem>`pkg-config --libs mpich2-cxx`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
       <item path="mpi_mm.cpp" ex="false" tool="1" flavor2="0">
       </item>

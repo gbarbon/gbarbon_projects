@@ -88,8 +88,8 @@ int main(int argc, char *argv[]) {
         double w = 0.0;
         for (i = 0; i < N; i++) {
             for (j = 0; j < N; j++) {
-                A[i][j] = k;
-                B[i][j] = k;
+                A[i][j] = w;
+                B[i][j] = w;
                 w = w + 1.0;
             }
         }

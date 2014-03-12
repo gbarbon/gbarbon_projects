@@ -14,15 +14,15 @@ GREP=grep
 NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=mpicc
-CCC=mpic++
-CXX=mpic++
-FC=mpif90
+CC=gcc
+CCC=mpicc
+CXX=mpicc
+FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=OpenMPI-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=GNU-Linux-x86
+CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -52,7 +52,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-lm `pkg-config --libs mpich2-cxx`  
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -60,12 +60,12 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm ${OBJECTFILES} ${LDLIBSOPTIONS}
+	openmpic++ -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/mpi_mm.o: mpi_mm.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm.o mpi_mm.cpp
+	$(COMPILE.cc) -g `pkg-config --cflags mpich2-cxx`   -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm.o mpi_mm.cpp
 
 # Subprojects
 .build-subprojects:
