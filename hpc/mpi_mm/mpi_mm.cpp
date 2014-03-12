@@ -36,6 +36,9 @@ int main(int argc, char *argv[]) {
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
+    
+    MPI_Comm MyComm_row;
+            MPI_Comm MyComm_col;
 
     N = atoi(argv[1]);
 
