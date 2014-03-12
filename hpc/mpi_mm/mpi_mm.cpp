@@ -148,8 +148,8 @@ int main(int argc, char *argv[]) {
         int* coo = coordinate(myrank - 1, numnodes);
 
         // creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione
-        int MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
-        int MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
+        MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
+        MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
     }
 
     // Let each process initialize C to zero 
