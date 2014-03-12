@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
     double startTime, endTime;
     int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
+    
+    //commento
 
     MPI_Init(&argc, &argv);
 
