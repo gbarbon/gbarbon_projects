@@ -35,7 +35,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/mpi_mm.o
+	${OBJECTDIR}/coordinate.o \
+	${OBJECTDIR}/freeall.o \
+	${OBJECTDIR}/mpi_mm.o \
+	${OBJECTDIR}/mpi_mm_test.o \
+	${OBJECTDIR}/printmatrix.o
 
 
 # C Compiler Flags
@@ -62,10 +66,30 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm_c: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm_c ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/coordinate.o: coordinate.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/coordinate.o coordinate.c
+
+${OBJECTDIR}/freeall.o: freeall.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/freeall.o freeall.c
+
 ${OBJECTDIR}/mpi_mm.o: mpi_mm.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm.o mpi_mm.c
+
+${OBJECTDIR}/mpi_mm_test.o: mpi_mm_test.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm_test.o mpi_mm_test.c
+
+${OBJECTDIR}/printmatrix.o: printmatrix.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printmatrix.o printmatrix.c
 
 # Subprojects
 .build-subprojects:
