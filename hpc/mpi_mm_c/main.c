@@ -12,11 +12,11 @@
  */
 int main(int argc, char** argv) {
     int N = atoi(argv[1]);
-    
+
     MPI_Init(&argc, &argv);
     mm(N);
-    
-    
+    MPI_Finalize();
+
     return (EXIT_SUCCESS);
 }
 

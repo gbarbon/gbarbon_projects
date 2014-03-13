@@ -8,23 +8,18 @@
 
 // MPI matrix matrix multiplication
 
-#include <mpi.h>
 #include "functions.h"
 
 int mm(int N) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
     double startTime, endTime;
-    int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
-
-    MPI_Init(&argc, &argv);
+    int numElements, offset, stripSize, myrank, numnodes, i, j, k, r, c;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
 
     MPI_Comm MyComm_row;
     MPI_Comm MyComm_col;
-
-    N = atoi(argv[1]);
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -193,7 +188,6 @@ int mm(int N) {
     
     //free all 
 
-    MPI_Finalize();
     return 0;
 }
 

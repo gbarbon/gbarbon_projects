@@ -18,7 +18,7 @@
 #define TAG 13
 
 //function declaration:
-void mm(int N);
+int mm(int N);
 int* coordinate(int procNum, int totalProc);
 void printmatrix();
 void freeall();
