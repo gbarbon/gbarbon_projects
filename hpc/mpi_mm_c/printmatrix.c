@@ -1,6 +1,6 @@
 
 
-void  printmatrix() {
+void  printmatrix(int N, double** C) {
     // print matrix
     
     int i, j; //matrix indexes
@@ -11,4 +11,5 @@ void  printmatrix() {
         printf("\n");
 
     }
+}
 

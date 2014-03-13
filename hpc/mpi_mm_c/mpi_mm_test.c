@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
 
     // print out matrix here, if I'm the master
     if (myrank == 0 && N < 10) {
-        printmatrix();
+        printmatrix(N, C);
     }
     
     //free all 
