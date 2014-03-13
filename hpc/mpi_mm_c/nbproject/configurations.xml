@@ -15,8 +15,9 @@
                    projectFiles="true">
       <itemPath>coordinate.c</itemPath>
       <itemPath>freeall.c</itemPath>
+      <itemPath>main.c</itemPath>
+      <itemPath>mm.c</itemPath>
       <itemPath>mpi_mm.c</itemPath>
-      <itemPath>mpi_mm_test.c</itemPath>
       <itemPath>printmatrix.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -47,9 +48,11 @@
       </item>
       <item path="functions.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
+      <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="mpi_mm_test.c" ex="false" tool="0" flavor2="0">
+      <item path="mm.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printmatrix.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -80,9 +83,11 @@
       </item>
       <item path="functions.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
+      <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="mpi_mm_test.c" ex="false" tool="0" flavor2="0">
+      <item path="mm.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="printmatrix.c" ex="false" tool="0" flavor2="0">
       </item>

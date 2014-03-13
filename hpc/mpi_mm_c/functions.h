@@ -9,6 +9,7 @@
 #define	FUNCTIONS_H
 
 //includes
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -17,6 +18,7 @@
 #define TAG 13
 
 //function declaration:
+void mm(int N);
 int* coordinate(int procNum, int totalProc);
 void printmatrix();
 void freeall();

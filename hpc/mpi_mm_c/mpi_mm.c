@@ -4,7 +4,7 @@
  *
  * Created on 12 marzo 2014, 15.20
  */
-
+/** 
 
 
 // MPI matrix matrix multiplication
@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
 	free(Bvett);
 	/*free(blocchiA);
 	free(blocchiB);
-	free(coord);*/
+	free(coord);*//*
 	
     MPI_Finalize();
     return 0;
@@ -236,3 +236,4 @@ int main(int argc, char *argv[]) {
 
 
 
+*/

@@ -1,5 +1,5 @@
-    
-
+#include "functions.h"    
+/*
     free(A);
     free(B);
     free(C);
@@ -7,7 +7,7 @@
     free(tmpA);
     free(tmpB);
     free(Avett);
-    free(Bvett);
+    free(Bvett);*/
     /*free(blocchiA);
     free(blocchiB);
     free(coord);*/

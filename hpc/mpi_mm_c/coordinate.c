@@ -1,3 +1,5 @@
+#include "functions.h"
+
 int* coordinate(int procNum, int totalProc) {
     int* coord = (int*) calloc(2, sizeof (int)); //aggiunto (int*)
     int var;

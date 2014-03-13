@@ -37,8 +37,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/coordinate.o \
 	${OBJECTDIR}/freeall.o \
+	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/mm.o \
 	${OBJECTDIR}/mpi_mm.o \
-	${OBJECTDIR}/mpi_mm_test.o \
 	${OBJECTDIR}/printmatrix.o
 
 
@@ -76,15 +77,20 @@ ${OBJECTDIR}/freeall.o: freeall.c
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/freeall.o freeall.c
 
+${OBJECTDIR}/main.o: main.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+
+${OBJECTDIR}/mm.o: mm.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mm.o mm.c
+
 ${OBJECTDIR}/mpi_mm.o: mpi_mm.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm.o mpi_mm.c
-
-${OBJECTDIR}/mpi_mm_test.o: mpi_mm_test.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm_test.o mpi_mm_test.c
 
 ${OBJECTDIR}/printmatrix.o: printmatrix.c 
 	${MKDIR} -p ${OBJECTDIR}
