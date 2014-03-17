@@ -7,13 +7,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/main.c</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/freeall.c</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/functions.h</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/coordinate.c</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/mpi_mm.c</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/mm.c</file>
-            <file>file:/Users/jian/repository/hpc_svn/trunk/hpc/mpi_mm_c/printmatrix.c</file>
+            <file>file:/home/asus/Scrivania/hpc/gbarbon_projects/trunk/hpc/mpi_mm_c/mpi_mm.c</file>
         </group>
     </open-files>
 </project-private>

@@ -21,8 +21,8 @@ FC=mpif90
 AS=as
 
 # Macros
-CND_PLATFORM=OpenMPI-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=openMPI-Linux-x86
+CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
