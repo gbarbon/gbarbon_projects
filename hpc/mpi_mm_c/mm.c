@@ -8,7 +8,7 @@
 
 // MPI matrix matrix multiplication
 
-#include "functions.h"
+#include "header.h"
 
 int mm(int N) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
