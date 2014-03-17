@@ -22,8 +22,8 @@ int* coordinate(int procNum, int totalProc) {
     var = sqrt(totalProc);
     coord[0] = procNum / var;
     coord[1] = procNum % var;
-    return coord;
     printf("Myrank is %d.\n Must NOT be 0\nCoordinates calculated\n", procNum + 1);
+    return coord;
 }
 
 int main(int argc, char *argv[]) {
