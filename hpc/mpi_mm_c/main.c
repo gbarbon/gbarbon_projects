@@ -9,7 +9,7 @@
 
 /*
  * 
- */
+ *//*
 int main(int argc, char** argv) {
     int N = atoi(argv[1]);
 
@@ -19,4 +19,4 @@ int main(int argc, char** argv) {
 
     return (EXIT_SUCCESS);
 }
-
+*/
