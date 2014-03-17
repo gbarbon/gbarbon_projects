@@ -21,8 +21,8 @@ FC=mpif90
 AS=as
 
 # Macros
-CND_PLATFORM=openMPI-Linux-x86
-CND_DLIB_EXT=so
+CND_PLATFORM=OpenMPI-MacOSX
+CND_DLIB_EXT=dylib
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -35,12 +35,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/coordinate.o \
-	${OBJECTDIR}/freeall.o \
-	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/functions.o \
 	${OBJECTDIR}/mm.o \
-	${OBJECTDIR}/mpi_mm.o \
-	${OBJECTDIR}/printmatrix.o
+	${OBJECTDIR}/mpi_mm.o
 
 
 # C Compiler Flags
@@ -67,20 +64,10 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm_c: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/mpi_mm_c ${OBJECTFILES} ${LDLIBSOPTIONS}
 
-${OBJECTDIR}/coordinate.o: coordinate.c 
+${OBJECTDIR}/functions.o: functions.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/coordinate.o coordinate.c
-
-${OBJECTDIR}/freeall.o: freeall.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/freeall.o freeall.c
-
-${OBJECTDIR}/main.o: main.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/functions.o functions.c
 
 ${OBJECTDIR}/mm.o: mm.c 
 	${MKDIR} -p ${OBJECTDIR}
@@ -91,11 +78,6 @@ ${OBJECTDIR}/mpi_mm.o: mpi_mm.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/mpi_mm.o mpi_mm.c
-
-${OBJECTDIR}/printmatrix.o: printmatrix.c 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/printmatrix.o printmatrix.c
 
 # Subprojects
 .build-subprojects:

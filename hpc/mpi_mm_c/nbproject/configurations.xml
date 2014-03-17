@@ -4,7 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>functions.h</itemPath>
+      <itemPath>header.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -13,12 +13,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>coordinate.c</itemPath>
-      <itemPath>freeall.c</itemPath>
-      <itemPath>main.c</itemPath>
+      <itemPath>functions.c</itemPath>
       <itemPath>mm.c</itemPath>
       <itemPath>mpi_mm.c</itemPath>
-      <itemPath>printmatrix.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -36,25 +33,19 @@
   <confs>
     <conf name="Debug" type="1">
       <toolsSet>
-        <compilerSet>openMPI|GNU</compilerSet>
+        <compilerSet>OpenMPI|GNU</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
       </compileType>
-      <item path="coordinate.c" ex="false" tool="0" flavor2="0">
+      <item path="functions.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="freeall.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="functions.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="main.c" ex="false" tool="0" flavor2="0">
+      <item path="header.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mm.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="printmatrix.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -77,19 +68,13 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="coordinate.c" ex="false" tool="0" flavor2="0">
+      <item path="functions.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="freeall.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="functions.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="main.c" ex="false" tool="0" flavor2="0">
+      <item path="header.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="mm.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="mpi_mm.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="printmatrix.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>
