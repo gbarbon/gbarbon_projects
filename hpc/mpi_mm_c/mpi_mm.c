@@ -29,18 +29,20 @@ int main(int argc, char *argv[]) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
     double startTime, endTime;
     int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
-    
+
     //commento
 
     MPI_Init(&argc, &argv);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
-    
+
     MPI_Comm MyComm_row;
-            MPI_Comm MyComm_col;
+    MPI_Comm MyComm_col;
 
     N = atoi(argv[1]);
+    //debug
+    printf('Printf atoi N: %d\n', N);
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -82,6 +84,9 @@ int main(int argc, char *argv[]) {
         for (i = 0; i < N / numnodes; i++)
             C[i] = &tmp[i * N];
     }
+
+    //debug
+    printf('Myrank is %d.\n A,B,C allocated\n', myrank);
 
     if (myrank == 0) {
         // initialize A and B
@@ -140,6 +145,8 @@ int main(int argc, char *argv[]) {
         // si può togliere il for e l'else e usare la scatter
         //MPI_Scatter(Avett, numElements, MPI_DOUBLE, A[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         //MPI_Scatter(Bvett, numElements, MPI_DOUBLE, B[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        //debug
+        printf('Myrank is %d.\n Must be 0\nPieces of A and B sent.\n', myrank);
     } else { // receive my part of A and B
         MPI_Recv(A[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(B[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -150,7 +157,12 @@ int main(int argc, char *argv[]) {
         // creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione
         MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
         MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
+
+        //debug
+        printf('Myrank is %d.\n Must NOT be 0\nPieces of A and B received.\n', myrank);
     }
+
+
 
     // Let each process initialize C to zero 
     for (i = 0; i < N; i++) {
@@ -158,6 +170,9 @@ int main(int argc, char *argv[]) {
             C[i][j] = 0.0;
         }
     }
+
+    //debug
+    printf('Myrank is %d.\n C initialized\n', myrank);
 
     if (myrank != 0) {
 
@@ -188,6 +203,8 @@ int main(int argc, char *argv[]) {
         }
 
 
+        //debug
+        printf('Myrank is %d.\n Must NOT be 0\nWork done!!\n', myrank);
     }
 
     // master receives from workers  -- note could be done via MPI_Gather
@@ -198,8 +215,12 @@ int main(int argc, char *argv[]) {
             MPI_Recv(C[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             offset += stripSize;
         }
+        //debug
+        printf('Myrank is %d.\n Must be 0\nPieces received from workers\n', myrank);
     } else { // send my contribution to C
         MPI_Send(C[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
+        //debug
+        printf('Myrank is %d.\n Must NOT be 0, I am a worker\nMy contribution has been sent\n', myrank);
     }
 
     // stop timer
@@ -218,18 +239,18 @@ int main(int argc, char *argv[]) {
         }
     }
 
-	free(A);
-	free(B);
-	free(C);
-	free(tmp);
-	free(tmpA);
-	free(tmpB);
-	free(Avett);
-	free(Bvett);
-	/*free(blocchiA);
-	free(blocchiB);
-	free(coord);*/
-	
+    free(A);
+    free(B);
+    free(C);
+    free(tmp);
+    free(tmpA);
+    free(tmpB);
+    free(Avett);
+    free(Bvett);
+    /*free(blocchiA);
+    free(blocchiB);
+    free(coord);*/
+
     MPI_Finalize();
     return 0;
 }
