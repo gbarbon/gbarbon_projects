@@ -10,7 +10,7 @@
 
 #include "header.h"
 
-int mm(int N) {
+int main(int N) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
     double startTime, endTime;
     int numElements, offset, stripSize, myrank, numnodes, i, j, k, r, c;
