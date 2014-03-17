@@ -23,6 +23,7 @@ int* coordinate(int procNum, int totalProc) {
     coord[0] = procNum / var;
     coord[1] = procNum % var;
     return coord;
+    printf("Myrank is %d.\n Must NOT be 0\nCoordinates calculated\n", procNum + 1);
 }
 
 int main(int argc, char *argv[]) {
@@ -151,15 +152,16 @@ int main(int argc, char *argv[]) {
         MPI_Recv(A[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(B[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+        printf("Myrank is %d.\n Must NOT be 0\nPieces of A and B received.\n", myrank);
         // calcolo delle coordinate
         int* coo = coordinate(myrank - 1, numnodes);
-
+        printf("Myrank is %d.\n Must NOT be 0\nCoordinates calculated (return to main funct).\n", myrank);
         // creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione
         MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
         MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
 
         //debug
-        printf("Myrank is %d.\n Must NOT be 0\nPieces of A and B received.\n", myrank);
+        printf("Myrank is %d.\n Must NOT be 0\nCommunicators created.\n", myrank);
     }
 
 
