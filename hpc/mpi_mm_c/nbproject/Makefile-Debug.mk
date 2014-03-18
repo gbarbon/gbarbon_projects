@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/functions.o \
+	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/mm.o \
 	${OBJECTDIR}/mpi_mm.o
 
@@ -68,6 +69,11 @@ ${OBJECTDIR}/functions.o: functions.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/functions.o functions.c
+
+${OBJECTDIR}/main.o: main.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
 
 ${OBJECTDIR}/mm.o: mm.c 
 	${MKDIR} -p ${OBJECTDIR}
