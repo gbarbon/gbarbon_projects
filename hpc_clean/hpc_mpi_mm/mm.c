@@ -6,14 +6,17 @@
  * Created on 12 marzo 2014, 15.20
  */
 
-// MPI matrix matrix multiplication
+/* MPI matrix matrix multiplication */
 
 #include "header.h"
 
-int main(int N) {
-    double **A, **B, **C, *tmp, *tmpA, *tmpB, **Avett, **Bvett;
+int main(int argc, char *argv[]) {
+    double **A, **B, **C, *tmp, *tmpA, *tmpB, *tmpC, **Avett, **Bvett;
+    double **Ablock, **Bblock, **Cblock;
     double startTime, endTime;
-    int numElements, offset, stripSize, myrank, numnodes, i, j, k, r, c;
+    int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
+
+    MPI_Init(&argc, &argv);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
@@ -21,8 +24,17 @@ int main(int N) {
     MPI_Comm MyComm_row;
     MPI_Comm MyComm_col;
 
-    // allocate A, B, and C --- note that you want these to be
-    // contiguously allocated.  Workers need less memory allocated.
+    int* coo;
+
+    N = atoi(argv[1]);
+    numnodes = 4;
+
+    /*debug*/
+    printf("Myrank is %d. Printf atoi N: %d\n", myrank, N);
+
+    /* allocate A, B, and C --- note that you want these to be
+        contiguously allocated.  Workers need less memory allocated. */
+
 
     if (myrank == 0) {
 
@@ -42,6 +54,9 @@ int main(int N) {
         for (i = 0; i < N; i++)
             C[i] = &tmp[i * N];
 
+        //debug
+        printf("Myrank is %d. Should be 0. A,B,C allocated\n", myrank);
+
         // initialize A and B
         double w = 0.0;
         for (i = 0; i < N; i++) {
@@ -51,6 +66,9 @@ int main(int N) {
                 w = w + 1.0;
             }
         }
+
+        //debug
+        printf("Myrank is %d. Should be 0. A,B initialized\n", myrank);
 
         // suddivisione in blocchi della matrice
         tmpA = (double *) malloc(sizeof (double) * N * N);
@@ -71,26 +89,47 @@ int main(int N) {
             }
         }
 
+
         for (i = 0; i < N; i++) {
             Avett[i] = &tmpA[i * N];
             Bvett[i] = &tmpB[i * N];
         }
 
+        //debug
+        printf("Myrank is %d. Should be 0. A,B divided\n", myrank);
+
     } else {
-        tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
+        /*tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
         A = (double **) malloc(sizeof (double *) * N / numnodes);
         for (i = 0; i < N / numnodes; i++)
-            A[i] = &tmp[i * N];
+            A[i] = &tmp[i * N];*/
 
-        tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
+        tmpA = (double *) malloc(sizeof (double) * N * N / numnodes);
+        Ablock = (double **) malloc(sizeof (double *) * N / numnodes);
+        for (i = 0; i < N / numnodes; i++)
+            Ablock[i] = &tmpA[i * N];
+
+        /*tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
         B = (double **) malloc(sizeof (double *) * N / numnodes);
         for (i = 0; i < N / numnodes; i++)
-            B[i] = &tmp[i * N];
+            B[i] = &tmp[i * N];*/
 
-        tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
+        tmpB = (double *) malloc(sizeof (double) * N * N / numnodes);
+        Bblock = (double **) malloc(sizeof (double *) * N / numnodes);
+        for (i = 0; i < N / numnodes; i++)
+            Bblock[i] = &tmpB[i * N];
+
+        /*tmp = (double *) malloc(sizeof (double) * N * N / numnodes);
         C = (double **) malloc(sizeof (double *) * N / numnodes);
         for (i = 0; i < N / numnodes; i++)
-            C[i] = &tmp[i * N];
+            C[i] = &tmp[i * N]; */
+        tmpC = (double *) malloc(sizeof (double) * N * N / numnodes);
+        Cblock = (double **) malloc(sizeof (double *) * N / numnodes);
+        for (i = 0; i < N / numnodes; i++)
+            Cblock[i] = &tmpC[i * N];
+
+        //debug
+        printf("Myrank is %d. Should NOT be 0. A,B,C allocated\n", myrank);
     }
 
     // start timer
@@ -110,19 +149,39 @@ int main(int N) {
             MPI_Send(Bvett[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             offset += stripSize;
         }
+
+        //debug
+        printf("Myrank is %d. Should be 0. Pieces sent\n", myrank);
+
         // si può togliere il for e l'else e usare la scatter
         //MPI_Scatter(Avett, numElements, MPI_DOUBLE, A[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         //MPI_Scatter(Bvett, numElements, MPI_DOUBLE, B[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     } else { // receive my part of A and B
+        /*
         MPI_Recv(A[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(B[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        */
+        MPI_Recv(Ablock[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(Bblock[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        //debug
+        printf("Myrank is %d. Should NOT be 0. Pieces received\n", myrank);
 
         // calcolo delle coordinate
-        int* coo = coordinate(myrank - 1, numnodes);
+        int* coo = coordinate(myrank, numnodes);
+
+        //debug
+        printf("Myrank is %d. Should NOT be 0. Coords computed\n", myrank);
+        printf("Printf coo[0]: %d\n", coo[0]);
+        printf("Printf coo[1]: %d\n", coo[1]);
 
         // creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione
+
         MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
         MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
+
+        //debug
+        printf("Myrank is %d. Should NOT be 0. Communicators created\n", myrank);
     }
 
     // Let each process initialize C to zero 
@@ -131,6 +190,9 @@ int main(int N) {
             C[i][j] = 0.0;
         }
     }
+
+    //debug
+    printf("Myrank is %d. C initialized\n", myrank);
 
     if (myrank != 0) {
 
@@ -181,13 +243,31 @@ int main(int N) {
         MPI_Send(C[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
     }
 
+    // stop timer
+    if (myrank == 0) {
+        //endTime = MPI_Wtime();
+        //printf("Time is %f\n", endTime - startTime);
+        free(A);
+        free(B);
+        free(C);
+        free(tmp);
+        free(tmpA);
+        free(tmpB);
+        free(tmpC);
+        free(Avett);
+        free(Bvett);
+        free(Ablock);
+        free(Bblock);
+        free(Cblock);
+    }
+
     // print out matrix here, if I'm the master
     if (myrank == 0 && N < 10) {
         printmatrix(N, C);
     }
-    
-    //free all 
 
+    //free all 
+    MPI_Finalize();
     return 0;
 }
 
