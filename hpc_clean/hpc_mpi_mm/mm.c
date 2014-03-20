@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
         /* matrix creation */
         A = matrix_creator(n, n);
         B = matrix_creator(n, n);
-
+        
         /*init matrices with random values*/
         matrix_init(A, n);
         matrix_init(B, n);
