@@ -17,8 +17,20 @@
 
 //define constants
 #define TAG 13
+const int tags[3] = {1,3,3};
+/* 
+ * Creates axb matrix
+ */
+double** matrix_creator(int a, int b) {
+    double **mat = (double **) malloc(a * sizeof (double*));
+    int i;
+    for (i = 1; i <= a; i++)
+        mat[i] = (double *) malloc(b * sizeof (double));
+    return mat;
+}
 
 //function definition:
+
 int* coordinate(int procNum, int totalProc) {
     int* coord = (int*) calloc(2, sizeof (int)); //aggiunto (int*)
     int var;

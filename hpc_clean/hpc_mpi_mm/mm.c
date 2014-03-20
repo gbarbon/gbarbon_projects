@@ -11,124 +11,141 @@
 #include "header.h"
 
 /* 
- * Creates nxn matrix
- */
-double** matrix_creator(int n) {
-    double **mat = (double **) malloc(n * sizeof (double*));
-    int i;
-    for (i = 0; i < n; i++)
-        mat[i] = (double *) malloc(n * sizeof (double));
-    return mat;
-}
-/* 
- * Creates axb matrix, used by workers
- */
-
-double** less_matrix_creator(int a, int b) {
-    double **mat = (double **) malloc(a * sizeof (double*));
-    int i;
-    for (i = 1; i <=a; i++)
-        mat[i] = (double *) malloc(b * sizeof (double));
-    return mat;
-}
-
-/* 
  * Compute multiplication
  */
-double** mult(double** rows, double** cols, int n, int splitvalue){
-    int i,j,k;
-    
-    /*data structure for resulting matrix*/
-    double** res;
-    res = matrix_creator(splitvalue);
-    
+double** mult(double** rows, double** cols, int n, int offset) {
+    int i, j, k;
+    double** res; /*data structure for resulting matrix*/
+
+    res = matrix_creator(offset, offset);
     for (i = 0; i <= n; i++) {
-            for (j = 0; j <= n; j++) {
-                for (k = 0; k <= splitvalue; k++) {
-                    res[i][j] += rows[i][k] * cols[k][j];
-                }
+        for (j = 0; j <= n; j++) {
+            for (k = 0; k <= offset; k++) {
+                res[i][j] += rows[i][k] * cols[k][j];
             }
         }
+    }
+
     return res;
-} 
+}
+
+int master_sender(double** A, double** B, int offset, int n){
+    int i,j,worker = 0;
+    for (j=0;j<n;j+offset)
+        for (i=0;i<n;i+offset) {
+            worker++;
+            MPI_Send(A[j], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
+            MPI_Send(B[i], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
+        }
+    return 0;
+}
+
+double** master_receiver(int n, int offset){
+    int i,j,worker = 0;
+    double** res;
+    
+    res = matrix_creator(n, n);
+    for (j=0;j<n;j+offset)
+        for (i=0;i<n;i+offset) {
+            worker++;
+            MPI_Recv(&res[j][i], sizeof (double) * offset * offset, MPI_DOUBLE, worker, tags[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+    
+    return res;
+}
+
 
 int main(int argc, char *argv[]) {
     //    double **A, **B, **C, *tmp, *tmpA, *tmpB, *tmpC, **Avett, **Bvett;
     //    double **Ablock, **Bblock, **Cblock;
     //    double startTime, endTime;
     //    int numElements, offset, stripSize, N, i, j, k, r, c;
-    
+
     /*MPI variables*/
     MPI_Comm MyComm_row, MyComm_col;
     MPI_Status status;
     int myrank, numnodes;
 
     /*Test variables*/
-    int ind_split, req_tag = 0, ans_tag = 2;
-    char message[100];
+    //int ind_split, req_tag = 0, ans_tag = 2;
+    //char message[100];
 
     /*matrix variables*/
     int n = atoi(argv[1]); /*matrix n given by the user*/
-    int i, splitvalue;
+    int mb, offset; /*offset is number of rows/columns for each process*/
     
+
     /*MPI initialization*/
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
-    
+
+    /*variables init*/
+    mb = sqrt(numnodes);
+    offset = n / mb;
     
     /*show who I am*/
     printf("I'm process %d\n", myrank);
-    
+
     if (myrank == 0) {
         /* matrix creation */
-        double **A = matrix_creator(n);
-        /*double **B = matrix_creator(n);*/
-        
+        double **A = matrix_creator(n, n);
+        double **B = matrix_creator(n, n);
+
         /*init matrices with random values*/
         
-        /*split matrix in pieces*/
-        /*send matrix pieces*/
+        /*test mpi with send message
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
-            printf("Debug: dentro il ciclo %d\n", ind_split);
             sprintf(message, "This message for processor number %d\n", ind_split);
             MPI_Send(message, strlen(message) + 1, MPI_CHAR, ind_split, req_tag, MPI_COMM_WORLD);
-        }
+        }*/
+        
+        /*split matrix in pieces & send matrix pieces*/
+        master_sender(A, B, offset, n);
     }
-
         /*barrier to wait that all nodes receive the message*/
         /*MPI_Barrier(MPI_COMM_WORLD);*/
         /*substitued with a synchronous send*/
     else {
-        /*number of rows/columns for each process*/
-        splitvalue = n*n / numnodes;
-        /*data structure for incoming rows*/
-        double** rows = less_matrix_creator(n, splitvalue);
-        /*data structure for incoming columns*/
-        double** cols = less_matrix_creator( splitvalue,  n);
-        
-        /*the process receive it's part*/
-        MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);
-        /*...*/
-        
-        /*work*/
-        double** res  =  mult(rows, cols, n, splitvalue);
+        /*data structure for incoming rows & cols*/
+        double** rows = matrix_creator(n, offset);
+        double** cols = matrix_creator(offset, n);
 
+        /*the process receive it's part*/
+        /*test mpi_recv with message
+        /MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
+        /*...*/
+        /*recv for rows of A*/
         
+        /*recv for cols of B*/
+
+        /*work*/
+        double** res = mult(rows, cols, n, offset);
+
+        /*test mpi with send message
         sprintf(message, "%s COMPUTED BY PROCESSOR NUMBER: %d\n", message, myrank);
-        /*send work back to master*/
         MPI_Send(message, strlen(message) + 1, MPI_CHAR, 0, ans_tag, MPI_COMM_WORLD);
+        */
+        
+        /*send work back to master*/
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
     /*collect all the stuff*/
     if (myrank == 0) {
-        //MPI_Reduce();
-        printf("*** FINAL PRINT ***\n");
-        for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
+        
+        /*test mpi with send message
+         * for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
             MPI_Recv(message, 100, MPI_CHAR, ind_split, ans_tag, MPI_COMM_WORLD, &status);
             printf("Printing message: %s\n", message);
-        }
+        }*/
+        
+        /*receive pieces and compute final matrix*/
+        double** res = master_receiver(n, offset);
+        
+        /*print final matrix and free memory of res*/
+        printmatrix(n, res);
+        free(res);
     }
 
     //    int* coo;
