@@ -37,9 +37,11 @@ int master_sender(double** A, double** B, int offset, int n) {
     for (j = 0; j < n; j += offset)
         for (i = 0; i < n; i += offset) {
             worker++;
+		printf("master_sender for worker %d \n", worker);
             MPI_Send(A[j], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             MPI_Send(B[i], sizeof (double) * offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
-        }
+        	printf("send finished for worker %d \n", worker);
+	}
     return 0;
 }
 
@@ -100,6 +102,13 @@ int main(int argc, char *argv[]) {
         matrix_init(A, n);
         matrix_init(B, n);
 
+	/*debug*/
+	printf("Matices correctly created. I will print them:\n");
+	printmatrix(n, A);
+	printf("\n");
+	printmatrix(n, B);
+	printf("\n");
+
         /*test mpi with send message
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
             sprintf(message, "This message for processor number %d\n", ind_split);
@@ -108,10 +117,11 @@ int main(int argc, char *argv[]) {
 
         /*split matrix in pieces & send matrix pieces*/
         master_sender(A, B, offset, n);
-    }        /*barrier to wait that all nodes receive the message*/
-        /*MPI_Barrier(MPI_COMM_WORLD);*/
-        /*substitued with a synchronous send*/
-    else {
+
+	/*debug*/
+	printf("Master has just passed the master_sender funct\n");
+    }
+   else {
         /*data structure for incoming rows & cols*/
         double** rows = matrix_creator(n, offset);
         double** cols = matrix_creator(offset, n);
