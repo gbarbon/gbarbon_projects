@@ -57,7 +57,7 @@ double** master_receiver(int n, int offset) {
     for (j = 0; j < n; j += offset)
         for (i = 0; i < n; i += offset) {
             worker++;
-            MPI_Recv(res[j][i], offset * offset, MPI_DOUBLE, worker, tags[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(&res[j][i], offset * offset, MPI_DOUBLE, worker, tags[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
 
     return res;
@@ -133,8 +133,8 @@ int main(int argc, char *argv[]) {
         /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
 
         /*recv for rows of A and cols of B*/
-        MPI_Recv(rows[0][0], n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(cols[0][0], offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&rows, n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&cols, offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         /*work and free rows and cols*/
         res = mult(rows, cols, n, offset);
