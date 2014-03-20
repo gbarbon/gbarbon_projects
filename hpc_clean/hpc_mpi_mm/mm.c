@@ -29,6 +29,9 @@ double** mult(double** rows, double** cols, int n, int offset) {
     return res;
 }
 
+/*
+ * Description: send rows and cols of A and B to the interested worker
+ */
 int master_sender(double** A, double** B, int offset, int n){
     int i,j,worker = 0;
     for (j=0;j<n;j+offset)
@@ -40,6 +43,9 @@ int master_sender(double** A, double** B, int offset, int n){
     return 0;
 }
 
+/*
+ * Description: receives results from workers
+ */
 double** master_receiver(int n, int offset){
     int i,j,worker = 0;
     double** res;
@@ -54,7 +60,9 @@ double** master_receiver(int n, int offset){
     return res;
 }
 
-
+/*
+ * Argv used for matrix dimension n
+ */
 int main(int argc, char *argv[]) {
     //    double **A, **B, **C, *tmp, *tmpA, *tmpB, *tmpC, **Avett, **Bvett;
     //    double **Ablock, **Bblock, **Cblock;
@@ -95,7 +103,8 @@ int main(int argc, char *argv[]) {
         B = matrix_creator(n, n);
 
         /*init matrices with random values*/
-        
+        matrix_init(A, n);
+        matrix_init(B, n);
         
         /*test mpi with send message
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
