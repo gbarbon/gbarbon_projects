@@ -1,6 +1,6 @@
 
 /* 
- * File:   mpi_mm.c
+ * File:   mm.c
  * Author: 
  *
  * Created on 12 marzo 2014, 15.20
@@ -115,6 +115,9 @@ int main(int argc, char *argv[]) {
         /*data structure for incoming rows & cols*/
         double** rows = matrix_creator(n, offset);
         double** cols = matrix_creator(offset, n);
+        
+        /*result matrix*/
+        double** res;
 
         /*test mpi_recv with message*/
         /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
@@ -124,7 +127,6 @@ int main(int argc, char *argv[]) {
         MPI_Recv(cols, sizeof (double) * offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         /*work and free rows and cols*/
-        double** res;
         res = mult(rows, cols, n, offset);
         free(rows);
         free(cols);
