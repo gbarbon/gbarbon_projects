@@ -34,8 +34,8 @@ double** mult(double** rows, double** cols, int n, int offset) {
  */
 int master_sender(double** A, double** B, int offset, int n) {
     int i, j, worker = 0;
-    for (j = 0; j < n; j + offset)
-        for (i = 0; i < n; i + offset) {
+    for (j = 0; j < n; j += offset)
+        for (i = 0; i < n; i += offset) {
             worker++;
             MPI_Send(A[j], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             MPI_Send(B[i], sizeof (double) * offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
@@ -51,8 +51,8 @@ double** master_receiver(int n, int offset) {
     double** res;
 
     res = matrix_creator(n, n);
-    for (j = 0; j < n; j + offset)
-        for (i = 0; i < n; i + offset) {
+    for (j = 0; j < n; j += offset)
+        for (i = 0; i < n; i += offset) {
             worker++;
             MPI_Recv(&res[j][i], sizeof (double) * offset * offset, MPI_DOUBLE, worker, tags[2], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
@@ -124,7 +124,8 @@ int main(int argc, char *argv[]) {
         MPI_Recv(cols, sizeof (double) * offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         /*work and free rows and cols*/
-        double** res = mult(rows, cols, n, offset);
+        double** res;
+        res = mult(rows, cols, n, offset);
         free(rows);
         free(cols);
 
