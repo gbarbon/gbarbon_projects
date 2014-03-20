@@ -8,7 +8,7 @@
 #ifndef FUNCTIONS_H
 #define	FUNCTIONS_H
 
-//includes
+/*includes*/
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
