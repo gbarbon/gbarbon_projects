@@ -10,12 +10,54 @@
 
 #include "header.h"
 
+/* 
+ * Creates nxn matrix
+ */
+double** matrix_creator(int n) {
+    double **mat = (double **) malloc(n * sizeof (double*));
+    int i;
+    for (i = 0; i < n; i++)
+        mat[i] = (double *) malloc(n * sizeof (double));
+    return mat;
+}
+/* 
+ * Creates axb matrix, used by workers
+ */
+
+double** less_matrix_creator(int a, int b) {
+    double **mat = (double **) malloc(a * sizeof (double*));
+    int i;
+    for (i = 1; i <=a; i++)
+        mat[i] = (double *) malloc(b * sizeof (double));
+    return mat;
+}
+
+/* 
+ * Compute multiplication
+ */
+double** mult(double** rows, double** cols, int n, int splitvalue){
+    int i,j,k;
+    
+    /*data structure for resulting matrix*/
+    double** res;
+    res = matrix_creator(splitvalue);
+    
+    for (i = 0; i <= n; i++) {
+            for (j = 0; j <= n; j++) {
+                for (k = 0; k <= splitvalue; k++) {
+                    res[i][j] += rows[i][k] * cols[k][j];
+                }
+            }
+        }
+    return res;
+} 
+
 int main(int argc, char *argv[]) {
     //    double **A, **B, **C, *tmp, *tmpA, *tmpB, *tmpC, **Avett, **Bvett;
     //    double **Ablock, **Bblock, **Cblock;
     //    double startTime, endTime;
     //    int numElements, offset, stripSize, N, i, j, k, r, c;
-
+    
     /*MPI variables*/
     MPI_Comm MyComm_row, MyComm_col;
     MPI_Status status;
@@ -25,16 +67,26 @@ int main(int argc, char *argv[]) {
     int ind_split, req_tag = 0, ans_tag = 2;
     char message[100];
 
-
+    /*matrix variables*/
+    int n = atoi(argv[1]); /*matrix n given by the user*/
+    int i, splitvalue;
+    
     /*MPI initialization*/
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
-
+    
+    
     /*show who I am*/
     printf("I'm process %d\n", myrank);
-
+    
     if (myrank == 0) {
+        /* matrix creation */
+        double **A = matrix_creator(n);
+        /*double **B = matrix_creator(n);*/
+        
+        /*init matrices with random values*/
+        
         /*split matrix in pieces*/
         /*send matrix pieces*/
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
@@ -48,15 +100,28 @@ int main(int argc, char *argv[]) {
         /*MPI_Barrier(MPI_COMM_WORLD);*/
         /*substitued with a synchronous send*/
     else {
+        /*number of rows/columns for each process*/
+        splitvalue = n*n / numnodes;
+        /*data structure for incoming rows*/
+        double** rows = less_matrix_creator(n, splitvalue);
+        /*data structure for incoming columns*/
+        double** cols = less_matrix_creator( splitvalue,  n);
+        
         /*the process receive it's part*/
         MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);
+        /*...*/
+        
         /*work*/
+        double** res  =  mult(rows, cols, n, splitvalue);
+
+        
         sprintf(message, "%s COMPUTED BY PROCESSOR NUMBER: %d\n", message, myrank);
         /*send work back to master*/
         MPI_Send(message, strlen(message) + 1, MPI_CHAR, 0, ans_tag, MPI_COMM_WORLD);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
+    /*collect all the stuff*/
     if (myrank == 0) {
         //MPI_Reduce();
         printf("*** FINAL PRINT ***\n");
