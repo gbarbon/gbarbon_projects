@@ -37,7 +37,8 @@ int master_sender(double** A, double** B, int offset, int n) {
     for (j = 0; j < n; j += offset)
         for (i = 0; i < n; i += offset) {
             worker++;
-            printf("master_sender for worker %d \n", worker);
+            printf("master_sender for worker %d \n\n", worker);
+            printmatrix(n, A);
             MPI_Send(&A[j][0], n * offset, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             printf("send finished for worker %d \n", worker);
