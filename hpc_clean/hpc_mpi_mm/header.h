@@ -14,10 +14,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
-//define constants
 #define TAG 13
-const int tags[3] = {1, 3, 3};
+const int tags[3] = {1, 2, 3};
+
+
+/*
+ * 
+ * FUNCTION DEFINITION
+ */ 
 
 /* 
  * Creates axb matrix
@@ -43,21 +49,9 @@ int matrix_init(double** mat, int n) {
     return 0;
 }
 
-//function definition:
-
-int* coordinate(int procNum, int totalProc) {
-    int* coord = (int*) calloc(2, sizeof (int)); //aggiunto (int*)
-    int var;
-    var = sqrt(totalProc);
-    coord[0] = procNum / var;
-    coord[1] = procNum % var;
-    return coord;
-}
-
 /*print matrix*/
 void printmatrix(int N, double** C) {
-    int i, j; //matrix indexes
-
+    int i, j; 
     for (i = 0; i < N; i++) {
         for (j = 0; j < N; j++)
             printf("%f ", C[i][j]);
