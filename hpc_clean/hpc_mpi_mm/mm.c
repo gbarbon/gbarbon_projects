@@ -35,7 +35,7 @@ int master_sender(double** A, double** B, int offset, int n){
         for (i=0;i<n;i+offset) {
             worker++;
             MPI_Send(A[j], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
-            MPI_Send(B[i], sizeof (double) * n * offset, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
+            MPI_Send(B[i], sizeof (double) * offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
         }
     return 0;
 }
@@ -73,6 +73,8 @@ int main(int argc, char *argv[]) {
     /*matrix variables*/
     int n = atoi(argv[1]); /*matrix n given by the user*/
     int mb, offset; /*offset is number of rows/columns for each process*/
+    double** A;
+    double** B;
     
 
     /*MPI initialization*/
@@ -89,10 +91,11 @@ int main(int argc, char *argv[]) {
 
     if (myrank == 0) {
         /* matrix creation */
-        double **A = matrix_creator(n, n);
-        double **B = matrix_creator(n, n);
+        A = matrix_creator(n, n);
+        B = matrix_creator(n, n);
 
         /*init matrices with random values*/
+        
         
         /*test mpi with send message
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
@@ -111,23 +114,26 @@ int main(int argc, char *argv[]) {
         double** rows = matrix_creator(n, offset);
         double** cols = matrix_creator(offset, n);
 
-        /*the process receive it's part*/
         /*test mpi_recv with message
         /MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
-        /*...*/
-        /*recv for rows of A*/
+
+        /*recv for rows of A and cols of B*/
+        MPI_Recv(rows, sizeof (double) * n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(cols, sizeof (double) * offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
-        /*recv for cols of B*/
-
-        /*work*/
+        /*work and free rows and cols*/
         double** res = mult(rows, cols, n, offset);
-
+        free(rows);
+        free(cols);
+        
+        /*send work back to master and free matrix*/
+        MPI_Send(res, sizeof (double) * offset * offset, MPI_DOUBLE, 0, tags[2], MPI_COMM_WORLD);
+        free(res);
+        
         /*test mpi with send message
         sprintf(message, "%s COMPUTED BY PROCESSOR NUMBER: %d\n", message, myrank);
         MPI_Send(message, strlen(message) + 1, MPI_CHAR, 0, ans_tag, MPI_COMM_WORLD);
         */
-        
-        /*send work back to master*/
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -143,8 +149,10 @@ int main(int argc, char *argv[]) {
         /*receive pieces and compute final matrix*/
         double** res = master_receiver(n, offset);
         
-        /*print final matrix and free memory of res*/
+        /*print final matrix and free memory of matrices A, B and res*/
         printmatrix(n, res);
+        free(A);
+        free(B);
         free(res);
     }
 
