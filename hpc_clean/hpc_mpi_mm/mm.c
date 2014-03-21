@@ -42,7 +42,7 @@ int master_sender(double** A, double** B, int offset, int n) {
                 printf("node0%d: Print part of matrix A\n", worker);
                 printmatrix(offset, n, &A[j]);
                 printf("node0%d: Print part of matrix B\n", worker);
-                printmatrix(n, offset, &B[0][i]);
+                printmatrix(n, offset, &(&B[0])[i]);
             }
             //printf("\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
