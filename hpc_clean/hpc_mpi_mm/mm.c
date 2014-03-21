@@ -38,8 +38,10 @@ int master_sender(double** A, double** B, int offset, int n) {
         for (i = 0; i < n; i += offset) {
             worker++;
             //printf("\n\n");
-            //printf("node0%d: Print part of matrix A\n", worker);
-            //printmatrix(offset, n, &A[j]);
+            if (worker == 1) {
+                printf("node0%d: Print part of matrix A\n", worker);
+                printmatrix(offset, n, &A[j]);
+            }
             //printf("\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
@@ -133,15 +135,15 @@ int main(int argc, char *argv[]) {
         double** res;
 
         /*test mpi_recv with message*/
-//        /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
-//        if (myrank == 1) {
-//            printf("This is offset: %d\n", offset);
-//            printf("node0%d: Printing empty rows\n", myrank);
-//            printmatrix(offset, n, rows);
-//            printf("node0%d: Printing empty cols\n", myrank);
-//            printmatrix(n, offset, cols);
-//            printf("BLABLA\n\n");
-//        }
+        //        /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
+        //        if (myrank == 1) {
+        //            printf("This is offset: %d\n", offset);
+        //            printf("node0%d: Printing empty rows\n", myrank);
+        //            printmatrix(offset, n, rows);
+        //            printf("node0%d: Printing empty cols\n", myrank);
+        //            printmatrix(n, offset, cols);
+        //            printf("BLABLA\n\n");
+        //        }
         /*recv for rows of A and cols of B*/
         //printf("node0%d: Waiting for incoming rows\n", myrank);
         MPI_Recv(rows[0], offset * n, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -157,7 +159,7 @@ int main(int argc, char *argv[]) {
             printmatrix(n, offset, cols);
             printf("BLABLA\n\n");
         }
-        
+
         /*work and free rows and cols*/
         res = mult(rows, cols, n, offset);
         freematrix(rows);
