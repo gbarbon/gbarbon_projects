@@ -38,11 +38,13 @@ int master_sender(double** A, double** B, int offset, int n) {
         for (i = 0; i < n; i += offset) {
             worker++;
             printf("\n\n");
+            printf("node0%d: Print part of matrix A\n", worker);
             printmatrix(offset, n, &A[j]);
+            printf("\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
-            printf("node0%d: WOAH!\n\n", worker);
+            printf("node0%d: WOAH!\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
-            printf("node0%d: send finished\n", worker);
+            printf("node0%d: both send finished\n", worker);
         }
     return 0;
 }
