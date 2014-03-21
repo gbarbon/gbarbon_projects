@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
         //printf("node0%d: Rows & cols received\n", myrank);
         printf("node0%d: Printing received rows\n", myrank);
         printmatrix(offset, n, rows);
-        rintf("node0%d: Printing received cols\n", myrank);
+        printf("node0%d: Printing received cols\n", myrank);
         printmatrix(n, offset, cols);
         
         /*work and free rows and cols*/
