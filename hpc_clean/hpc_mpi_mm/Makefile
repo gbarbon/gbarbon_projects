@@ -22,11 +22,13 @@ base: mm.c
 strict: mm.c 
 	$(CC) $(STRICT) -o $(NAME) mm.c
 
-fast:  mm.c
+fast_s:  mm.c
 	$(CC) $(FAST) -o $(NAME) mm.c
+
+fast: update fast_s
 
 clean:
 	rm $(dir)/*.out
-	
+
 update: 
 	svn update
