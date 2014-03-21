@@ -31,7 +31,7 @@ const int tags[3] = {1, 2, 3};
 double** matrix_creator(int a, int b) {
     double **mat = (double **) malloc(a * sizeof (double*));
     int i;
-    for (i = 1; i <= a; i++)
+    for (i = 0; i < a; i++)
         mat[i] = (double *) malloc(b * sizeof (double));
     return mat;
 }
