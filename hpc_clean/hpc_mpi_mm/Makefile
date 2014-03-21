@@ -26,7 +26,7 @@ fast:  mm.c
 	$(CC) $(FAST) -o $(NAME) mm.c
 
 clean:
-	rm $(dir)/*
+	rm $(dir)/*.out
 	
 update: 
 	svn update
