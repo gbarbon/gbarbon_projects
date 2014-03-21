@@ -49,7 +49,7 @@ int master_sender(double** A, double** B, int offset, int n) {
             tempB = matrix_vectorizer(n, offset, &(&B[0])[i]);
             if (worker == 1) {
                 printf("node0%d: Print part of temp A\n", worker);
-                printvector(offset*n, tempA);
+                //printvector(offset*n, tempA);
                 printf("node0%d: Print part of temp B\n", worker);
                 printvector(n*offset, tempB);
             }
