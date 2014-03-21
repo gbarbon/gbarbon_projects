@@ -133,26 +133,31 @@ int main(int argc, char *argv[]) {
         double** res;
 
         /*test mpi_recv with message*/
-        /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
+//        /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
+//        if (myrank == 1) {
+//            printf("This is offset: %d\n", offset);
+//            printf("node0%d: Printing empty rows\n", myrank);
+//            printmatrix(offset, n, rows);
+//            printf("node0%d: Printing empty cols\n", myrank);
+//            printmatrix(n, offset, cols);
+//            printf("BLABLA\n\n");
+//        }
+        /*recv for rows of A and cols of B*/
+        //printf("node0%d: Waiting for incoming rows\n", myrank);
+        MPI_Recv(rows[0], offset * n, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        //printf("node0%d: Waiting for incoming cols\n", myrank);
+        MPI_Recv(cols[0], n * offset, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        //printf("node0%d: Rows & cols received\n", myrank);
+
         if (myrank == 1) {
             printf("This is offset: %d\n", offset);
-            printf("node0%d: Printing empty rows\n", myrank);
+            printf("node0%d: Printing  rows\n", myrank);
             printmatrix(offset, n, rows);
-            printf("node0%d: Printing empty cols\n", myrank);
+            printf("node0%d: Printing  cols\n", myrank);
             printmatrix(n, offset, cols);
             printf("BLABLA\n\n");
         }
-        /*recv for rows of A and cols of B*/
-        //printf("node0%d: Waiting for incoming rows\n", myrank);
-        MPI_Recv(rows[0], n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        //printf("node0%d: Waiting for incoming cols\n", myrank);
-        MPI_Recv(cols[0], offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        //printf("node0%d: Rows & cols received\n", myrank);
-        //printf("node0%d: Printing received rows\n", myrank);
-        //printmatrix(offset, n, rows);
-        //printf("node0%d: Printing received cols\n", myrank);
-        //printmatrix(n, offset, cols);
-
+        
         /*work and free rows and cols*/
         res = mult(rows, cols, n, offset);
         freematrix(rows);
