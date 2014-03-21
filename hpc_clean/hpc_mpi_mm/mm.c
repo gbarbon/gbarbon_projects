@@ -43,7 +43,7 @@ int master_sender(double** A, double** B, int offset, int n) {
                 printmatrix(offset, n, &A[j]);
             }
             //printf("\n");
-            MPI_Send(&A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
+            MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             //printf("node0%d: both send finished\n", worker);
@@ -128,8 +128,8 @@ int main(int argc, char *argv[]) {
         printf("Master has just passed the master_sender funct\n");
     } else {
         /*data structure for incoming rows & cols*/
-        double** rows = matrix_creator(offset, n);
-        double** cols = matrix_creator(n, offset);
+        double** rows = matrix_creator(offset*2, n);
+        double** cols = matrix_creator(n, offset*2);
 
         /*result matrix*/
         double** res;
@@ -154,9 +154,9 @@ int main(int argc, char *argv[]) {
         if (myrank == 1) {
             printf("This is offset: %d\n", offset);
             printf("node0%d: Printing  rows\n", myrank);
-            printmatrix(offset, n, rows);
+            printmatrix(n, n, rows);
             printf("node0%d: Printing  cols\n", myrank);
-            printmatrix(n, offset, cols);
+            printmatrix(n, n, cols);
             printf("BLABLA\n\n");
         }
 
