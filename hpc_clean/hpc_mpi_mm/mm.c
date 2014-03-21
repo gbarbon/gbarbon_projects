@@ -128,8 +128,8 @@ int main(int argc, char *argv[]) {
         printf("Master has just passed the master_sender funct\n");
     } else {
         /*data structure for incoming rows & cols*/
-        double** rows = matrix_creator(offset*3, n);
-        double** cols = matrix_creator(n, offset*3);
+        double** rows = matrix_creator(offset, n*3);
+        double** cols = matrix_creator(n, offset);
 
         /*result matrix*/
         double** res;
@@ -154,9 +154,9 @@ int main(int argc, char *argv[]) {
         if (myrank == 1) {
             printf("This is offset: %d\n", offset);
             printf("node0%d: Printing  rows\n", myrank);
-            printmatrix(offset*3, n, rows);
+            printmatrix(offset, n*3, rows);
             printf("node0%d: Printing  cols\n", myrank);
-            printmatrix(n, offset*3, cols);
+            printmatrix(n, offset, cols);
             printf("BLABLA\n\n");
         }
 
