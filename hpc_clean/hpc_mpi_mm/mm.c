@@ -40,10 +40,10 @@ int master_sender(double** A, double** B, int offset, int n) {
             //printf("\n\n");
             if (worker == 1) {
                 printf("node0%d: Print part of matrix A\n", worker);
-                printmatrix(offset, n, &A[j]);
+                printmatrix(offset, n, A[j]);
             }
             //printf("\n");
-            MPI_Send(A[j][i], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
+            MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             //printf("node0%d: both send finished\n", worker);
