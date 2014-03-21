@@ -135,6 +135,10 @@ int main(int argc, char *argv[]) {
         /*test mpi_recv with message*/
         /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
 
+        printf("node0%d: Printing empty rows\n", myrank);
+        printmatrix(offset, n, rows);
+        printf("node0%d: Printing empty cols\n", myrank);
+        printmatrix(n, offset, cols);
         /*recv for rows of A and cols of B*/
         //printf("node0%d: Waiting for incoming rows\n", myrank);
         MPI_Recv(rows[0], n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
