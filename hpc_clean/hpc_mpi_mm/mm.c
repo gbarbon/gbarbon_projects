@@ -40,7 +40,7 @@ int master_sender(double** A, double** B, int offset, int n) {
             printf("master_sender for worker: %d, offset: %d, n: %d \n\n", worker, offset, n);
             printmatrix(n,n, A);
             printf("\n\n");
-            printmatrix(offset,n, A[j]);
+            printmatrix(offset,n, &A[j]);
             printf("ALL PRINTED\n\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             printf("WOAH!\n\n", worker);
