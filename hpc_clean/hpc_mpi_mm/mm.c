@@ -38,7 +38,10 @@ int master_sender(double** A, double** B, int offset, int n) {
         for (i = 0; i < n; i += offset) {
             worker++;
             printf("master_sender for worker: %d, offset: %d, n: %d \n\n", worker, offset, n);
-            printmatrix(n, A);
+            printmatrix(n,n, A);
+            printf("\n\n");
+            printmatrix(offset,n, A[j]);
+            printf("ALL PRINTED\n\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             printf("WOAH!\n\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
@@ -106,9 +109,9 @@ int main(int argc, char *argv[]) {
 
         /*debug*/
         printf("Matices correctly created. I will print them:\n");
-        printmatrix(n, A);
+        printmatrix(n,n, A);
         printf("\n");
-        printmatrix(n, B);
+        printmatrix(n,n, B);
         printf("\n");
 
         /*test mpi with send message
@@ -166,7 +169,7 @@ int main(int argc, char *argv[]) {
         double** res = master_receiver(n, offset);
 
         /*print final matrix and free memory of matrices A, B and res*/
-        printmatrix(n, res);
+        printmatrix(n, n, res);
         freematrix(A);
         freematrix(B);
         freematrix(res);

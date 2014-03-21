@@ -60,11 +60,11 @@ void freematrix(double** mat) {
     free(mat);
 }
 
-/*print matrix*/
-void printmatrix(int N, double** C) {
+/*print matrix axb*/
+void printmatrix(int a, int b, double** C) {
     int i, j;
-    for (i = 0; i < N; i++) {
-        for (j = 0; j < N; j++)
+    for (i = 0; i < a; i++) {
+        for (j = 0; j < b; j++)
             printf("%f ", C[i][j]);
         printf("\n");
     }
