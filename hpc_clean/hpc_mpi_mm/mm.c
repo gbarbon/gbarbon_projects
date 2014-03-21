@@ -39,7 +39,7 @@ int master_sender(double** A, double** B, int offset, int n) {
             worker++;
             printf("master_sender for worker %d \n\n", worker);
             printmatrix(n, A);
-            MPI_Send(A[j], n, MPI_DOUBLE, worker, TAG, MPI_COMM_WORLD);
+            MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             printf("WOAH!\n\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             printf("send finished for worker %d \n", worker);
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
 
     /*variables init*/
-    mb = sqrt(numnodes);
+    mb = sqrt(numnodes-1);
     offset = n / mb;
 
     /*show who I am*/
