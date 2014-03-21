@@ -136,8 +136,11 @@ int main(int argc, char *argv[]) {
         /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
 
         /*recv for rows of A and cols of B*/
+        printf("node0%d: Waiting for incoming rows\n", myrank);
         MPI_Recv(rows[0], n * offset, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("node0%d: Waiting for incoming cols\n", myrank);
         MPI_Recv(cols[0], offset * n, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("node0%d: Rows & cols received\n", myrank);
 
         /*work and free rows and cols*/
         res = mult(rows, cols, n, offset);
