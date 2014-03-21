@@ -39,7 +39,6 @@ int master_sender(double** A, double** B, int offset, int n) {
             worker++;
             printf("\n\n");
             printmatrix(offset,n, &A[j]);
-            printf("ALL PRINTED\n\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             printf("WOAH!\n\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
@@ -80,8 +79,8 @@ int main(int argc, char *argv[]) {
     /*matrix variables*/
     int n = atoi(argv[1]); /*matrix n given by the user*/
     int mb, offset; /*offset is number of rows/columns for each process*/
-    double** A;
-    double** B;
+    double **A;
+    double **B;
 
 
     /*MPI initialization*/
