@@ -126,8 +126,8 @@ int main(int argc, char *argv[]) {
         printf("Master has just passed the master_sender funct\n");
     } else {
         /*data structure for incoming rows & cols*/
-        double** rows = matrix_creator(n, offset);
-        double** cols = matrix_creator(offset, n);
+        double** rows = matrix_creator(offset, n);
+        double** cols = matrix_creator(n, offset);
 
         /*result matrix*/
         double** res;
