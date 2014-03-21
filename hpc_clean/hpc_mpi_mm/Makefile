@@ -14,7 +14,7 @@ dir = bin
 
 NAME = $(dir)/hpc_mpi_mm
 
-all: base
+all: update base
 
 base: mm.c 
 	$(CC) -o $(NAME) mm.c
@@ -27,3 +27,6 @@ fast:  mm.c
 
 clean:
 	rm $(dir)/*
+	
+update: 
+	svn update
