@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 
         /*test mpi_recv with message*/
         /*MPI_Recv(message, 100, MPI_CHAR, 0, req_tag, MPI_COMM_WORLD, &status);*/
-
+        printf("This is offset: %d", offset);
         printf("node0%d: Printing empty rows\n", myrank);
         printmatrix(offset, n, rows);
         printf("node0%d: Printing empty cols\n", myrank);
