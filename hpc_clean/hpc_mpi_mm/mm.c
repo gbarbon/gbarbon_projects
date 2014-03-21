@@ -38,11 +38,11 @@ int master_sender(double** A, double** B, int offset, int n) {
         for (i = 0; i < n; i += offset) {
             worker++;
             printf("\n\n");
-            printmatrix(offset,n, &A[j]);
+            printmatrix(offset, n, &A[j]);
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
-            printf("WOAH!\n\n", worker);
+            printf("node0%d: WOAH!\n\n", worker);
             MPI_Send(&B[0][i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
-            printf("send finished for worker %d \n", worker);
+            printf("node0%d: send finished for worker %d \n", worker);
         }
     return 0;
 }
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
 
     /*variables init*/
-    mb = sqrt(numnodes-1);
+    mb = sqrt(numnodes - 1);
     offset = n / mb;
 
     /*show who I am*/
@@ -106,9 +106,9 @@ int main(int argc, char *argv[]) {
 
         /*debug*/
         printf("Matices correctly created. I will print them:\n");
-        printmatrix(n,n, A);
+        printmatrix(n, n, A);
         printf("\n");
-        printmatrix(n,n, B);
+        printmatrix(n, n, B);
         printf("\n");
 
         /*test mpi with send message
