@@ -20,7 +20,7 @@ base: mm.c
 	$(CC) -o $(NAME) mm.c
 
 strict: mm.c 
-	$(CC) $(STRICT) -o $(NAME) <$
+	$(CC) $(STRICT) -o $(NAME) mm.c
 
 fast_s:  mm.c
 	$(CC) $(FAST) -o $(NAME) mm.c
