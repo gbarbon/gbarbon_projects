@@ -75,16 +75,19 @@ void printvector(int a, double* C) {
     int i, j;
     for (i = 0; i < a; i++) 
         printf("%f ", C[i]);
+    printf("\n");
 }
 
 double * matrix_vectorizer(int a, int b, double ** mat){
     double * vet = (double *) malloc(a * b * sizeof (double));
     int i, j, offset = 0;
     for(i=0;i<a;i++){
+        //printf("This is offset: %d\n", offset);
         for(j=0;j<b;j++){
             vet[j+offset] = mat[i][j];
+            //printf("%d-th value: %f\n", j+offset,vet[j+offset]);
         }
-        offset = offset + a;
+        offset = offset + b;
     }
     return vet;
 }

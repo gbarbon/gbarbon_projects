@@ -49,14 +49,14 @@ int master_sender(double** A, double** B, int offset, int n) {
             tempB = matrix_vectorizer(n, offset, &(&B[0])[i]);
             if (worker == 1) {
                 printf("node0%d: Print part of temp A\n", worker);
-                //printvector(offset*n, tempA);
+                printvector(offset*n, tempA);
                 printf("node0%d: Print part of temp B\n", worker);
                 printvector(n*offset, tempB);
             }
             //printf("\n");
-            MPI_Send((&A[j])[0], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
+            MPI_Send(tempA, offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
-            MPI_Send((&B[0])[i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
+            MPI_Send(tempB, offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             //printf("node0%d: both send finished\n", worker);
             free(tempA);
             free(tempB);
@@ -141,9 +141,10 @@ int main(int argc, char *argv[]) {
         printf("Master has just passed the master_sender funct\n");
     } else {
         /*data structure for incoming rows & cols*/
-        double** rows = matrix_creator(offset, n*3);
+        double** rows = matrix_creator(offset, n * 3);
         double** cols = matrix_creator(n, offset);
-
+        double * temp_rows = (double *) malloc(offset * n * sizeof (double));
+        double * temp_cols = (double *) malloc(offset * n * sizeof (double));
         /*result matrix*/
         double** res;
 
@@ -159,17 +160,18 @@ int main(int argc, char *argv[]) {
         //        }
         /*recv for rows of A and cols of B*/
         //printf("node0%d: Waiting for incoming rows\n", myrank);
-        MPI_Recv(&rows[0][0], offset * n, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&temp_rows, offset * n, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         //printf("node0%d: Waiting for incoming cols\n", myrank);
-        MPI_Recv(&cols[0][0], n * offset, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&temp_cols, n * offset, MPI_DOUBLE, 0, tags[1], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         //printf("node0%d: Rows & cols received\n", myrank);
-
+        
+        printf("MY RANK IS: %d\n", myrank);
         if (myrank == 1) {
             printf("This is offset: %d\n", offset);
-            printf("node0%d: Printing  rows\n", myrank);
-            printmatrix(offset, n, rows);
-            printf("node0%d: Printing  cols\n", myrank);
-            printmatrix(n, offset, cols);
+            printf("node0%d: Printing temp rows\n", myrank);
+            printvector(offset*n, temp_rows);
+            printf("node0%d: Printing temp cols\n", myrank);
+            printvector(n*offset, temp_cols);
             printf("BLABLA\n\n");
         }
 
@@ -177,6 +179,8 @@ int main(int argc, char *argv[]) {
         res = mult(rows, cols, n, offset);
         freematrix(rows);
         freematrix(cols);
+        free(temp_rows);
+        free(temp_cols);
 
         /*send work back to master and free matrix*/
         MPI_Send(&res[0][0], offset * offset, MPI_DOUBLE, 0, tags[2], MPI_COMM_WORLD);
