@@ -45,7 +45,7 @@ int master_sender(double** A, double** B, int offset, int n) {
                 printmatrix(n, offset, &(&B[0])[i]);
             }
             //printf("\n");
-            MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
+            MPI_Send((&A[j])[0], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
             MPI_Send(&(&B[0])[i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             //printf("node0%d: both send finished\n", worker);
