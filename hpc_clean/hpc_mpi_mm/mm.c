@@ -34,6 +34,7 @@ double** mult(double** rows, double** cols, int n, int offset) {
  */
 int master_sender(double** A, double** B, int offset, int n) {
     int i, j, worker = 0;
+    double * tempA, * tempB;
     for (j = 0; j < n; j += offset)
         for (i = 0; i < n; i += offset) {
             worker++;
@@ -44,11 +45,21 @@ int master_sender(double** A, double** B, int offset, int n) {
                 printf("node0%d: Print part of matrix B\n", worker);
                 printmatrix(n, offset, &(&B[0])[i]);
             }
+            tempA = matrix_vectorizer(offset, n, &A[j]);
+            tempB = matrix_vectorizer(n, offset, &(&B[0])[i]);
+            if (worker == 1) {
+                printf("node0%d: Print part of temp A\n", worker);
+                printmatrix(offset, n, &A[j]);
+                printf("node0%d: Print part of temp B\n", worker);
+                printmatrix(n, offset, &(&B[0])[i]);
+            }
             //printf("\n");
             MPI_Send((&A[j])[0], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
             //printf("node0%d: WOAH!\n", worker);
             MPI_Send((&B[0])[i], offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
             //printf("node0%d: both send finished\n", worker);
+            free(tempA);
+            free(tempB);
         }
     return 0;
 }

@@ -70,6 +70,25 @@ void printmatrix(int a, int b, double** C) {
     }
 }
 
+/*print vector */
+void printmatrix(int a, double* C) {
+    int i, j;
+    for (i = 0; i < a; i++) 
+        printf("%f ", C[i]);
+}
+
+double * matrix_vectorizer(int a, int b, double ** mat){
+    double * vet = (double *) malloc(a * b * sizeof (double));
+    int i, j, offset = 0;
+    for(i=0;i<a;i++){
+        for(j=0;j<b;j++){
+            vet[j+offset] = mat[i][j];
+        }
+        offset = offset + a;
+    }
+    return vet;
+}
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
