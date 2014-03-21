@@ -71,7 +71,7 @@ void printmatrix(int a, int b, double** C) {
 }
 
 /*print vector */
-void printmatrix(int a, double* C) {
+void printvector(int a, double* C) {
     int i, j;
     for (i = 0; i < a; i++) 
         printf("%f ", C[i]);

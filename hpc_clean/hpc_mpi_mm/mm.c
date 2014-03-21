@@ -49,9 +49,9 @@ int master_sender(double** A, double** B, int offset, int n) {
             tempB = matrix_vectorizer(n, offset, &(&B[0])[i]);
             if (worker == 1) {
                 printf("node0%d: Print part of temp A\n", worker);
-                printmatrix(offset, n, &A[j]);
+                printvector(offset*n, tempA);
                 printf("node0%d: Print part of temp B\n", worker);
-                printmatrix(n, offset, &(&B[0])[i]);
+                printvector(n*offset, tempB);
             }
             //printf("\n");
             MPI_Send((&A[j])[0], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
