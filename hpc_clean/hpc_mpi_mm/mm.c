@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
             printmatrix(offset, n, rows);
             printf("node0%d: Printing empty cols\n", myrank);
             printmatrix(n, offset, cols);
-            printf("\n\n");
+            printf("BLABLA\n\n");
         }
         /*recv for rows of A and cols of B*/
         //printf("node0%d: Waiting for incoming rows\n", myrank);
