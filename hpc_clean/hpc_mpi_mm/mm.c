@@ -159,6 +159,8 @@ int main(int argc, char *argv[]) {
         //            printf("BLABLA\n\n");
         //        }
         /*recv for rows of A and cols of B*/
+        
+        printf("MY RANK IS: %d\n", myrank);
         //printf("node0%d: Waiting for incoming rows\n", myrank);
         MPI_Recv(&temp_rows, offset * n, MPI_DOUBLE, 0, tags[0], MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         //printf("node0%d: Waiting for incoming cols\n", myrank);
