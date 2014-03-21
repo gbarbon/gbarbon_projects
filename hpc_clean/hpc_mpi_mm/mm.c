@@ -41,6 +41,8 @@ int master_sender(double** A, double** B, int offset, int n) {
             if (worker == 1) {
                 printf("node0%d: Print part of matrix A\n", worker);
                 printmatrix(offset, n, &A[j]);
+                printf("node0%d: Print part of matrix B\n", worker);
+                printmatrix(n, offset, &B[0][i]);
             }
             //printf("\n");
             MPI_Send(A[j], offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
@@ -154,7 +156,7 @@ int main(int argc, char *argv[]) {
         if (myrank == 1) {
             printf("This is offset: %d\n", offset);
             printf("node0%d: Printing  rows\n", myrank);
-            printmatrix(offset, n*3, rows);
+            printmatrix(offset, n, rows);
             printf("node0%d: Printing  cols\n", myrank);
             printmatrix(n, offset, cols);
             printf("BLABLA\n\n");
