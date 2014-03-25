@@ -40,24 +40,24 @@ int master_sender(double** A, double** B, int offset, int n) {
             worker++;
             //printf("\n\n");
             if (worker == 1) {
-                printf("node0%d: Print part of matrix A\n", worker);
+                printf("FOR node0%d: Print part of matrix A\n", worker);
                 printmatrix(offset, n, &A[j]);
-                printf("node0%d: Print part of matrix B\n", worker);
+                printf("FOR node0%d: Print part of matrix B\n", worker);
                 printmatrix(n, offset, &(&B[0])[i]);
             }
             tempA = matrix_vectorizer(offset, n, &A[j]);
             tempB = matrix_vectorizer(n, offset, &(&B[0])[i]);
             if (worker == 1) {
-                printf("node0%d: Print part of temp A\n", worker);
+                printf("FOR node0%d: Print part of temp A\n", worker);
                 printvector(offset*n, tempA);
-                printf("node0%d: Print part of temp B\n", worker);
+                printf("FOR node0%d: Print part of temp B\n", worker);
                 printvector(n*offset, tempB);
             }
             //printf("\n");
             MPI_Send(tempA, offset * n, MPI_DOUBLE, worker, tags[0], MPI_COMM_WORLD);
-            //printf("node0%d: WOAH!\n", worker);
+            printf("FOR node0%d: WOAH!\n", worker);
             MPI_Send(tempB, offset * n, MPI_DOUBLE, worker, tags[1], MPI_COMM_WORLD);
-            //printf("node0%d: both send finished\n", worker);
+            printf("FOR node0%d: both send finished\n", worker);
             free(tempA);
             free(tempB);
         }
@@ -159,6 +159,16 @@ int main(int argc, char *argv[]) {
         //            printf("BLABLA\n\n");
         //        }
         /*recv for rows of A and cols of B*/
+        
+         printf("PRINT BEFORE RECV\n", myrank);
+        if (myrank == 1) {
+            printf("This is offset: %d\n", offset);
+            printf("node0%d: Printing temp rows EMPTY\n", myrank);
+            printvector(offset*n, temp_rows);
+            printf("node0%d: Printing temp cols EMPTY\n", myrank);
+            printvector(n*offset, temp_cols);
+            printf("____\n\n");
+        }
         
         printf("MY RANK IS: %d\n", myrank);
         //printf("node0%d: Waiting for incoming rows\n", myrank);
