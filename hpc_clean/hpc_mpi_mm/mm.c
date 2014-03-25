@@ -145,11 +145,11 @@ int main(int argc, char *argv[]) {
         matrix_transposer(n, B);
 
         /*debug*/
-        printf("Matices correctly created. I will print them:\n");
-        printmatrix(n, n, A);
-        printf("\n");
-        printmatrix(n, n, B);
-        printf("\n");
+//        printf("Matices correctly created. I will print them:\n");
+//        printmatrix(n, n, A);
+//        printf("\n");
+//        printmatrix(n, n, B);
+//        printf("\n");
 
         /*test mpi with send message
         for (ind_split = 1; ind_split <= numnodes - 1; ind_split++) {
@@ -265,7 +265,7 @@ int main(int argc, char *argv[]) {
         res = master_receiver(n, offset);
 
         /*print final matrix and free memory of matrices A, B and res*/
-        printmatrix(n, n, res);
+        //printmatrix(n, n, res);
         freematrix(n, A);
         freematrix(n, B);
         freematrix(n, res);
