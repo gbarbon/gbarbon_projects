@@ -50,11 +50,24 @@ int matrix_init(double** mat, int n) {
 }
 
 /*
- * free a nxn matrix
+ Initialize a matrix with simple stram of integers (casted in double)
  */
-void freematrix(double** mat) {
+int simple_matrix_init(double** mat, int n) {
+    int i, j; /*matrix indexes*/
+    int counter=1;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++)
+            mat[i][j] = counter++;
+    }
+    return 0;
+}
+
+/*
+ * free a matrix
+ */
+void freematrix(int n, double** mat) {
     int i;
-    for (i = 0; mat[i] != NULL; i++) {
+    for (i = 0; i < n; i++) {
         free(mat[i]);
     }
     free(mat);
@@ -68,6 +81,7 @@ void printmatrix(int a, int b, double** C) {
             printf("%f ", C[i][j]);
         printf("\n");
     }
+    printf("\n");
 }
 
 /*print vector */
@@ -78,18 +92,51 @@ void printvector(int a, double* C) {
     printf("\n");
 }
 
+/*
+ transform a matrix in a vector
+ */
 double * matrix_vectorizer(int a, int b, double ** mat){
     double * vet = (double *) malloc(a * b * sizeof (double));
     int i, j, offset = 0;
     for(i=0;i<a;i++){
-        //printf("This is offset: %d\n", offset);
         for(j=0;j<b;j++){
             vet[j+offset] = mat[i][j];
-            //printf("%d-th value: %f\n", j+offset,vet[j+offset]);
         }
         offset = offset + b;
     }
     return vet;
+}
+
+/*
+ transform a vector in a matrix
+ */
+double ** devectorizer(int a, int b, double * vet){
+    double ** mat = matrix_creator(a,b);
+    int i, j, offset = 0;
+    
+    for(i=0;i<a;i++){
+        for(j=0;j<b;j++){
+            mat[i][j] =  vet[j+offset];
+        }
+    offset = offset + b;
+    }
+    
+    return mat;
+}
+
+/*
+ transpose a square matrix
+ */
+int matrix_transposer(int n, double ** A) {
+    int i, j; /*indexes*/
+    double temp;
+    for (i = 0; i < n-1; i++)
+        for (j = i + 1; j < n; j++) {
+            temp = A[i][j];
+            A[i][j] = A[j][i];
+            A[j][i] = temp;
+        }
+    return 0;
 }
 
 #ifdef	__cplusplus
