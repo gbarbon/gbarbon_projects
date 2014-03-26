@@ -12,18 +12,18 @@ STRICT=-ansi -pedantic -Wall -Werror
 
 dir = bin
 
-NAME = $(dir)/hpc_mpi_mm-fast
+NAME = $(dir)/hpc_mpi_cannon
 
 all: update base
 
-base: mmfast.c 
-	$(CC) -o $(NAME) mmfast.c
+base: cannon.c 
+	$(CC) -o $(NAME) cannon.c
 
-strict: mmfast.c 
-	$(CC) $(STRICT) -o $(NAME) mmfast.c
+strict: cannon.c 
+	$(CC) $(STRICT) -o $(NAME) cannon.c
 
-fast_s:  mmfast.c
-	$(CC) $(FAST) -o $(NAME) mmfast.c
+fast_s:  cannon.c
+	$(CC) $(FAST) -o $(NAME) cannon.c
 
 fast: update fast_s
 
