@@ -1,6 +1,6 @@
 /* 
  * File:   functions.h
- * Author: jian
+ * Author: 
  *
  * Created on 13 marzo 2014, 11.42
  */
@@ -16,17 +16,17 @@
 #include <math.h>
 #include <time.h>
 
-#define TAG 13
-const int tags[3] = {1, 2, 3};
+/* CONSTANTS DEFINITION */
+/*const int tags[3] = {1, 2, 3};*/
 
+/* FUNCTION DEFINITION */
 
-/*
- * 
- * FUNCTION DEFINITION
- */
-
-/* 
+/**
  * Creates axb matrix
+ * 
+ * @param a     Number of rows of the matrix
+ * @param b     Number of columns of the matrix
+ * @return mat  Pointer to a double axb matrix
  */
 double** matrix_creator(int a, int b) {
     double **mat = (double **) malloc(a * sizeof (double*));
@@ -36,34 +36,43 @@ double** matrix_creator(int a, int b) {
     return mat;
 }
 
-int matrix_init(double** mat, int n) {
+/**
+ * Initializes a matrix with random values
+ * 
+ * @param mat   Pointer to a nxn square matrix
+ * @param n     Dimension of the matrix
+ */
+void matrix_init(double** mat, int n) {
     int i, j; /*matrix indexes*/
 
-    /* random seed initialization */
-    srand(time(NULL));
+    srand(time(NULL)); /* random seed initialization */
 
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++)
             mat[i][j] = ((double) rand() / (double) RAND_MAX);
     }
-    return 0;
 }
 
-/*
- Initialize a matrix with simple stram of integers (casted in double)
+/**
+ * Initializes a matrix with simple stream of integers (casted in double)
+ * 
+ * @param mat   Pointer to a nxn square matrix
+ * @param n     Dimension of the matrix
  */
-int simple_matrix_init(double** mat, int n) {
+void simple_matrix_init(double** mat, int n) {
     int i, j; /*matrix indexes*/
-    int counter=1;
+    int counter = 1;
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++)
             mat[i][j] = counter++;
     }
-    return 0;
 }
 
-/*
- * free a matrix
+/**
+ * Frees a matrix
+ * 
+ * @param n     Rows of the matrix
+ * @param mat   Pointer to a matrix
  */
 void freematrix(int n, double** mat) {
     int i;
@@ -73,7 +82,13 @@ void freematrix(int n, double** mat) {
     free(mat);
 }
 
-/*print matrix axb*/
+/**
+ * Prints matrix axb
+ * 
+ * @param a     Number of rows of the matrix
+ * @param b     Number of cols of the matrix
+ * @param C     Pointer to a axb matrix
+ */
 void printmatrix(int a, int b, double** C) {
     int i, j;
     for (i = 0; i < a; i++) {
@@ -84,71 +99,76 @@ void printmatrix(int a, int b, double** C) {
     printf("\n");
 }
 
-/*print vector */
+/**
+ * Prints a vector
+ * 
+ * @param a     Vector dimension
+ * @param C     Pointer to a vector
+ */
 void printvector(int a, double* C) {
     int i, j;
-    for (i = 0; i < a; i++) 
+    for (i = 0; i < a; i++)
         printf("%f ", C[i]);
     printf("\n");
 }
 
-/*
- transform a matrix in a vector
+/**
+ * Transforms a matrix in a vector
+ * 
+ * @param a     Number of rows of the matrix    
+ * @param b     Number of cols of the matrix
+ * @param mat   Pointer to the axb matrix
+ * @return vet  Vector composed of all the rows of the matrix
  */
-double * matrix_vectorizer(int a, int b, double ** mat){
+double * matrix_vectorizer(int a, int b, double ** mat) {
     double * vet = (double *) malloc(a * b * sizeof (double));
     int i, j, offset = 0;
-    for(i=0;i<a;i++){
-        for(j=0;j<b;j++){
-            vet[j+offset] = mat[i][j];
+    for (i = 0; i < a; i++) {
+        for (j = 0; j < b; j++) {
+            vet[j + offset] = mat[i][j];
         }
         offset = offset + b;
     }
     return vet;
 }
 
-/*
- transform a vector in a matrix
+/**
+ * Transforms a vector in a matrix
+ * 
+ * @param a     Number of rows of the matrix
+ * @param b     Number of cols of the matrix
+ * @param vet   Pointer to the vector
+ * @return mat  Matrix axb
  */
-double ** devectorizer(int a, int b, double * vet){
-    double ** mat = matrix_creator(a,b);
+double ** devectorizer(int a, int b, double * vet) {
+    double ** mat = matrix_creator(a, b);
     int i, j, offset = 0;
-    
-    for(i=0;i<a;i++){
-        for(j=0;j<b;j++){
-            mat[i][j] =  vet[j+offset];
+
+    for (i = 0; i < a; i++) {
+        for (j = 0; j < b; j++) {
+            mat[i][j] = vet[j + offset];
         }
-    offset = offset + b;
+        offset = offset + b;
     }
-    
+
     return mat;
 }
 
-/*
- transpose a square matrix
+/**
+ * Transpose a square matrix
+ * 
+ * @param n     Dimension of the matrix
+ * @param A     Pointer to the nxn matrix
  */
-int matrix_transposer(int n, double ** A) {
+void matrix_transposer(int n, double ** A) {
     int i, j; /*indexes*/
     double temp;
-    for (i = 0; i < n-1; i++)
+    for (i = 0; i < n - 1; i++)
         for (j = i + 1; j < n; j++) {
             temp = A[i][j];
             A[i][j] = A[j][i];
             A[j][i] = temp;
         }
-    return 0;
 }
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-
-
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* FUNCTIONS_H */
-

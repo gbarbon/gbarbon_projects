@@ -9,7 +9,7 @@
 #define STOPWATCH_H_
 
 //#include <time.h>
-#include <mpi/mpi.h>
+#include <mpi.h>
 
 typedef struct
 {
