@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
                 if (recv < N) {
                     MPI_Recv(&indexR, 1, MPI_INT, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     printf("indexR= %d\n", indexR);
-                    //MPI_Recv(C[indexR], N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Recv(C[indexR], N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     recv++;
                 }
                 // se ci sono ancora righe da inviare le invio al processo appena liberatosi
