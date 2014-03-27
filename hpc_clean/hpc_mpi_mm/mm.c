@@ -13,8 +13,8 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <math.h>
-#include "MpiStopwatch.h"
 #include "header.h"
+#include "MpiStopwatch.h"
 
 #define TAG 13
 
@@ -31,11 +31,11 @@ int* coordinate(int procNum, int totalProc) {
 int main(int argc, char *argv[]) {
     double **A, **B, **C, *tmp, *tmpA, *tmpB, *tmpC, **Avett, **Bvett;
     double **Ablock, **Bblock, **Cblock;
-    double startTime, endTime;
+    //double startTime, endTime;
     int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
 
-    //commento
-
+    /*stopwatch*/
+    Stopwatch watch = StopwatchCreate();
 
     MPI_Init(&argc, &argv);
 
@@ -48,9 +48,8 @@ int main(int argc, char *argv[]) {
 
     N = atoi(argv[1]);
     numnodes = 4;
-    //debug
-    printf("Printf atoi N: %d\n", N);
-
+//    //debug
+//    printf("Printf atoi N: %d\n", N);
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
 
@@ -99,23 +98,23 @@ int main(int argc, char *argv[]) {
 
     if (myrank == 0) {
         // initialize A and B
-//        double w = 0.0;
-//        for (i = 0; i < N; i++) {
-//            for (j = 0; j < N; j++) {
-//                A[i][j] = w;
-//                B[i][j] = w;
-//                w = w + 1.0;
-//            }
-//        }
-        matrix_init(A,N);
-        matrix_init(B,N);
-//        for (i = 0; i < N; i++) {
-//            for (j = 0; j < N; j++) {
-//                printf("%f ", A[i][j]);
-//            }
-//            printf("\n");
-//        }
-        printmatrix(N,N,A);
+        //        double w = 0.0;
+        //        for (i = 0; i < N; i++) {
+        //            for (j = 0; j < N; j++) {
+        //                A[i][j] = w;
+        //                B[i][j] = w;
+        //                w = w + 1.0;
+        //            }
+        //        }
+        matrix_init(A, N);
+        matrix_init(B, N);
+        //        for (i = 0; i < N; i++) {
+        //            for (j = 0; j < N; j++) {
+        //                printf("%f ", A[i][j]);
+        //            }
+        //            printf("\n");
+        //        }
+        printmatrix(N, N, A);
 
         // suddivisione in blocchi della matrice
         tmpA = (double *) malloc(sizeof (double) * N * N);
@@ -140,18 +139,20 @@ int main(int argc, char *argv[]) {
             Avett[i] = &tmpA[i * N];
             Bvett[i] = &tmpB[i * N];
         }
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < N; j++) {
-                printf("%f ", Avett[i][j]);
-            }
-            printf("\n");
-        }
+//        for (i = 0; i < N; i++) {
+//            for (j = 0; j < N; j++) {
+//                printf("%f ", Avett[i][j]);
+//            }
+//            printf("\n");
+//        }
+        printmatrix(N,N,Avett);
 
     }
 
     // start timer
     if (myrank == 0) {
-        startTime = MPI_Wtime();
+        //startTime = MPI_Wtime();
+            StopwatchStart(watch);
     }
 
     stripSize = N / numnodes;
@@ -166,53 +167,22 @@ int main(int argc, char *argv[]) {
         for (i = 0; i < numnodes; i++) {
             MPI_Send(Avett[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bvett[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-            printf("rank: %d  ", i);
-            for (j = 0; j < N; j++) {
-                printf("%f ", Avett[offset][j]);
-            }
-            printf("offset: %d\n", offset);
-
             offset += stripSize;
-
         }
-        // si può togliere il for e l'else e usare la scatter
-        //MPI_Scatter(Avett, numElements, MPI_DOUBLE, A[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        //MPI_Scatter(Bvett, numElements, MPI_DOUBLE, B[0], numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        //debug
-        printf("Myrank is %d. Must be 0. Pieces of A and B sent.\n", myrank);
     }
-    // receive my part of A and B
-    printf("stripSizeR: %d\n", stripSize);
+    /*receive my part of A and B*/
     MPI_Recv(Ablock[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(Bblock[0], stripSize * N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    printf("rankR: %d  ", myrank);
-    for (j = 0; j < stripSize * N; j++) {
-        printf("%f ", Ablock[0][j]);
-    }
-    printf("\n");
 
-    printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
-    // calcolo delle coordinate
+    /* coords computation */
     coo = coordinate(myrank, numnodes);
-    printf("Myrank is %d. Must NOT be 0. Coordinates calculated (return to main funct).\n", myrank);
-    // creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione
 
-    printf("Printf coo[0]: %d\n", coo[0]);
-    printf("Printf coo[1]: %d\n", coo[1]);
-
-
-
-    //MPI_Barrier(MPI_COMM_WORLD);
-
+    /*MPI_Barrier(MPI_COMM_WORLD);*/
+    /*creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
 
-    //debug
-    printf("Myrank is %d. Must NOT be 0. Communicators created.\n", myrank);
-
-
-
-    // Let each process initialize C to zero
+    /* Let each process initialize C to zero */
     if (myrank == 0) {
         for (i = 0; i < N; i++) {
             for (j = 0; j < N; j++) {
@@ -220,52 +190,26 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
     for (i = 0; i < N / numnodes; i++) {
         for (j = 0; j < N / numnodes; j++) {
             Cblock[i][j] = 0.0;
         }
     }
 
-
-    //debug
-    printf("Myrank is %d. C initialized\n", myrank);
-
     int rsize, csize;
     double *rbuf;
     double *cbuf;
 
-
-    printf("Myrank is %d. Must NOT be 0. AllGatherInizio\n", myrank);
-
     MPI_Comm_size(MyComm_row, &rsize);
     MPI_Comm_size(MyComm_col, &csize);
-
-    printf("Myrank is %d. Must NOT be 0. rsize: %d csize: %d\n", myrank, rsize, csize);
 
     rbuf = (double *) malloc(rsize * 4 * sizeof (double));
     cbuf = (double*) malloc(csize * 4 * sizeof (double));
 
-    printf("Myrank is %d. Must NOT be 0. AllGather\n", myrank);
-
     MPI_Allgather(Ablock[0], stripSize * N, MPI_DOUBLE, rbuf, stripSize * N, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock[0], stripSize * N, MPI_DOUBLE, cbuf, stripSize * N, MPI_DOUBLE, MyComm_col);
 
-    printf("Myrank is %d. Must NOT be 0. AllGatherFatta\n", myrank);
-
-    printf("rankM: %d  ", myrank);
-    for (j = 0; j < rsize * stripSize * N; j++) {
-        printf("%f ", rbuf[j]);
-    }
-    printf("\n");
-
-    printf("rankM: %d  ", myrank);
-    for (j = 0; j < csize * stripSize * N; j++) {
-        printf("%f ", cbuf[j]);
-    }
-    printf("\n");
-
-    // ripristina la versione a matrice
+    /* ripristina la versione a matrice */
     double *tmpAA, *tmpBB;
     double **AAblock, **BBblock;
 
@@ -273,12 +217,13 @@ int main(int argc, char *argv[]) {
     AAblock = (double **) malloc(sizeof (double *) * rsize);
     for (i = 0; i < rsize; i++)
         AAblock[i] = &tmpAA[i * N];
+    AAblock = 
 
     tmpBB = (double *) malloc(csize * 4 * sizeof (double));
     BBblock = (double **) malloc(sizeof (double *) * csize);
     for (i = 0; i < csize; i++)
         BBblock[i] = &tmpBB[i * N];
-
+    BBblock = matrix_creator(N,N);
 
     k = 0;
 
@@ -300,8 +245,8 @@ int main(int argc, char *argv[]) {
         printf("\n");
     }
 
-    printf("\n");
-    printf("Myrank is %d. Must NOT be 0. Multiplies\n", myrank);
+//    printf("\n");
+//    printf("Myrank is %d. Must NOT be 0. Multiplies\n", myrank);
     // do the work
     int l, m;
     /*for (i = 0; i <= stripSize; i++) {
@@ -343,17 +288,22 @@ int main(int argc, char *argv[]) {
     if (myrank == 0) {
         //endTime = MPI_Wtime();
         //printf("Time is %f\n", endTime - startTime);
-        free(A);
-        free(B);
-        free(C);
-        free(tmp);
+        //        free(A);
+        //        free(B);
+        //        free(C);
+        freematrix(N, A);
+        freematrix(N, B);
+        freematrix(N, C);
+        freematrix(N / numnodes, Ablock);
+        freematrix(N / numnodes, Bblock);
+        freematrix(N / numnodes, Cblock);
+        //        free(tmp);
         free(tmpA);
         free(tmpB);
-        free(tmpC);
+        //        free(tmpC);
         free(Avett);
         free(Bvett);
     }
-
 
     // print out matrix here, if I'm the master
     /*if (myrank == 0 && N < 10) {
@@ -366,11 +316,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
     /*free(blocchiA);
     free(blocchiB);
     free(coord);*/
-
+    free(coo);
+    
     MPI_Finalize();
     return 0;
 }
