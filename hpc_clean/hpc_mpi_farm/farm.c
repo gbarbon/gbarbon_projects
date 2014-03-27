@@ -150,8 +150,8 @@ int main(int argc, char** argv) {
 
 
     }
-    recv = 0;
-    while (recv < N) {
+    
+    //while (recv < N) {
         if (myrank != 0) {
             // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
             MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -177,15 +177,17 @@ int main(int argc, char** argv) {
         }
 
         if (myrank == 0) {
+            //recv = 0;
             // ricevo dagli slave le righe calcolate
             for (i = 0; i < numnodes - 1; i++) {
-                if (recv < N) {
+                //if (recv < N) {
                     MPI_Recv(&indexR, 1, MPI_INT, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Recv(C[indexR], N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    printf("indexR= %d\n", indexR);
+                    //MPI_Recv(C[indexR], N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     recv++;
 
                     // se ci sono ancora righe da inviare le invio al processo appena liberatosi
-                    if (index < N && index != -1) {
+                    /*if (index < N && index != -1) {
                         MPI_Send(&index, 1, MPI_INT, i + 1, i + 1, MPI_COMM_WORLD);
                         MPI_Send(A[index], N, MPI_DOUBLE, i + 1, i + 1, MPI_COMM_WORLD);
                         index = index + 1;
@@ -193,33 +195,33 @@ int main(int argc, char** argv) {
                     else {
                         index = -1;
                         MPI_Send(&index, 1, MPI_INT, i + 1, i + 1, MPI_COMM_WORLD);
-                    }
+                    }*/
                     printf("Myrank is %d. recv= %d\n", myrank, recv);
-                }
+                //}
             }
 
-            if (recv == N) {
+            //if (recv == N) {
                 printf("Stampa C\n");
                 stampaMat(C, N);
 
-                free(A);
-                free(C);
-            }
+                //free(A);
+                //free(C);
+            //}//
         }
-    }
+    //}
 
-    free(B);
+    /*free(B);
     free(tmp);
     free(Bvett);
 
     if (myrank != 0) {
         free(rigaA);
         free(ris);
-    }
+    }*/
     
-    printf("Fine while\n");
+    printf("Myrank is %d. Fine while\n", myrank);
     MPI_Finalize();
-    printf("Finalize\n");
+    printf("Myrank is %d. Finalize\n", myrank);
     return 0;
 }
 
