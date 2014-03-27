@@ -8,13 +8,13 @@
 
 
 // MPI matrix matrix multiplication
-
-#include <mpi.h>
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+//
+//#include <mpi.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <math.h>
+#include "MpiStopwatch.h"
+#include "header.h"
 
 #define TAG 13
 
@@ -55,63 +55,67 @@ int main(int argc, char *argv[]) {
     // contiguously allocated.  Workers need less memory allocated.
 
     if (myrank == 0) {
-        tmp = (double *) malloc(sizeof (double) * N * N);
-        A = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            A[i] = &tmp[i * N];
+        //        tmp = (double *) malloc(sizeof (double) * N * N);
+        //        A = (double **) malloc(sizeof (double *) * N);
+        //        for (i = 0; i < N; i++)
+        //            A[i] = &tmp[i * N];
+        A = matrix_creator(N, N);
     }
-    tmpA = (double *) malloc(sizeof (double) * N * N / numnodes);
-    Ablock = (double **) malloc(sizeof (double *) * N / numnodes);
-    for (i = 0; i < N / numnodes; i++)
-        Ablock[i] = &tmpA[i * N];
-
-
+    //    tmpA = (double *) malloc(sizeof (double) * N * N / numnodes);
+    //    Ablock = (double **) malloc(sizeof (double *) * N / numnodes);
+    //    for (i = 0; i < N / numnodes; i++)
+    //        Ablock[i] = &tmpA[i * N];
+    Ablock = matrix_creator(N / numnodes, N);
 
     if (myrank == 0) {
-        tmp = (double *) malloc(sizeof (double) * N * N);
-        B = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            B[i] = &tmp[i * N];
+        //        tmp = (double *) malloc(sizeof (double) * N * N);
+        //        B = (double **) malloc(sizeof (double *) * N);
+        //        for (i = 0; i < N; i++)
+        //            B[i] = &tmp[i * N];
+        B = matrix_creator(N, N);
     }
 
-    tmpB = (double *) malloc(sizeof (double) * N * N / numnodes);
-    Bblock = (double **) malloc(sizeof (double *) * N / numnodes);
-    for (i = 0; i < N / numnodes; i++)
-        Bblock[i] = &tmpB[i * N];
-
-
+    //    tmpB = (double *) malloc(sizeof (double) * N * N / numnodes);
+    //    Bblock = (double **) malloc(sizeof (double *) * N / numnodes);
+    //    for (i = 0; i < N / numnodes; i++)
+    //        Bblock[i] = &tmpB[i * N];
+    Bblock = matrix_creator(N / numnodes, N);
 
     if (myrank == 0) {
-        tmp = (double *) malloc(sizeof (double) * N * N);
-        C = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            C[i] = &tmp[i * N];
+        //        tmp = (double *) malloc(sizeof (double) * N * N);
+        //        C = (double **) malloc(sizeof (double *) * N);
+        //        for (i = 0; i < N; i++)
+        //            C[i] = &tmp[i * N];
+        C = matrix_creator(N, N);
     }
-    tmpC = (double *) malloc(sizeof (double) * N * N / numnodes);
-    Cblock = (double **) malloc(sizeof (double *) * N / numnodes);
-    for (i = 0; i < N / numnodes; i++)
-        Cblock[i] = &tmpC[i * N];
-
+    //    tmpC = (double *) malloc(sizeof (double) * N * N / numnodes);
+    //    Cblock = (double **) malloc(sizeof (double *) * N / numnodes);
+    //    for (i = 0; i < N / numnodes; i++)
+    //        Cblock[i] = &tmpC[i * N];
+    Cblock = matrix_creator(N / numnodes, N);
 
     //debug
-    printf("Myrank is %d. A,B,C allocated\n", myrank);
+    //printf("Myrank is %d. A,B,C allocated\n", myrank);
 
     if (myrank == 0) {
         // initialize A and B
-        double w = 0.0;
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < N; j++) {
-                A[i][j] = w;
-                B[i][j] = w;
-                w = w + 1.0;
-            }
-        }
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < N; j++) {
-                printf("%f ", A[i][j]);
-            }
-            printf("\n");
-        }
+//        double w = 0.0;
+//        for (i = 0; i < N; i++) {
+//            for (j = 0; j < N; j++) {
+//                A[i][j] = w;
+//                B[i][j] = w;
+//                w = w + 1.0;
+//            }
+//        }
+        matrix_init(A,N);
+        matrix_init(B,N);
+//        for (i = 0; i < N; i++) {
+//            for (j = 0; j < N; j++) {
+//                printf("%f ", A[i][j]);
+//            }
+//            printf("\n");
+//        }
+        printmatrix(N,N,A);
 
         // suddivisione in blocchi della matrice
         tmpA = (double *) malloc(sizeof (double) * N * N);
@@ -238,15 +242,15 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MyComm_col, &csize);
 
     printf("Myrank is %d. Must NOT be 0. rsize: %d csize: %d\n", myrank, rsize, csize);
-    
+
     rbuf = (double *) malloc(rsize * 4 * sizeof (double));
-    cbuf = (double*)malloc(csize*4*sizeof(double));
-    
+    cbuf = (double*) malloc(csize * 4 * sizeof (double));
+
     printf("Myrank is %d. Must NOT be 0. AllGather\n", myrank);
-    
+
     MPI_Allgather(Ablock[0], stripSize * N, MPI_DOUBLE, rbuf, stripSize * N, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock[0], stripSize * N, MPI_DOUBLE, cbuf, stripSize * N, MPI_DOUBLE, MyComm_col);
-    
+
     printf("Myrank is %d. Must NOT be 0. AllGatherFatta\n", myrank);
 
     printf("rankM: %d  ", myrank);
@@ -254,13 +258,13 @@ int main(int argc, char *argv[]) {
         printf("%f ", rbuf[j]);
     }
     printf("\n");
-        
+
     printf("rankM: %d  ", myrank);
     for (j = 0; j < csize * stripSize * N; j++) {
         printf("%f ", cbuf[j]);
     }
     printf("\n");
-    
+
     // ripristina la versione a matrice
     double *tmpAA, *tmpBB;
     double **AAblock, **BBblock;
@@ -277,7 +281,7 @@ int main(int argc, char *argv[]) {
 
 
     k = 0;
-    
+
     for (j = 0; j < N; j = j + N / (numnodes / 2)) {
         for (r = 0; r < N / (numnodes / 2); r++) {
             for (c = j; c < j + N / (numnodes / 2); c++) {
@@ -287,7 +291,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-        
+
     printf("rankS: %d  \n", myrank);
     for (i = 0; i < N / (numnodes / 2); i++) {
         for (j = 0; j < N; j++) {
@@ -295,11 +299,11 @@ int main(int argc, char *argv[]) {
         }
         printf("\n");
     }
-        
+
     printf("\n");
     printf("Myrank is %d. Must NOT be 0. Multiplies\n", myrank);
     // do the work
-    int l,m;
+    int l, m;
     /*for (i = 0; i <= stripSize; i++) {
         l=0;
         m=0;
