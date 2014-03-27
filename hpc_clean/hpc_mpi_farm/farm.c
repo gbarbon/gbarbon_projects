@@ -152,7 +152,6 @@ int main(int argc, char** argv) {
         }
         printf("Myrank is %d. Send effettuate\n", myrank);
 
-
     }
 
     //while (recv < N) {
