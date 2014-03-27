@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
         // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
         MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        while (index != -1) {
+        if (index != -1) {
             MPI_Recv(rigaA, N, MPI_DOUBLE, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             for (j = 0; j < N; j++) ris[j] = 0.0;
 
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
             MPI_Send(ris, N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD);
             printf("Myrank is %d. Mult effettuate\n", myrank);
 
-            MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            //MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
 
 
