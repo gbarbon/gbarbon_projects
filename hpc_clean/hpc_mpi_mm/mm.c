@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
     int* coo;
 
     N = atoi(argv[1]);
-    numnodes = 4;
     stripSize = N / numnodes;
 
     Ablock = matrix_creator(N / numnodes, N);
@@ -69,7 +68,7 @@ int main(int argc, char *argv[]) {
                 for (r = i; r < i + N / (numnodes / 2); r++) {
                     for (c = j; c < j + N / (numnodes / 2); c++) {
                         tmpA[k] = A[r][c];
-                        tmpB[k] = B[r][c];
+                        tmpB[k] = B[c][r];
                         k++;
                     }
                 }
@@ -112,7 +111,7 @@ int main(int argc, char *argv[]) {
         }
     }
     for (i = 0; i < N / numnodes; i++) {
-        for (j = 0; j < N / numnodes; j++) {
+        for (j = 0; j < stripSize * N; j++) {
             Cblock[i][j] = 0.0;
         }
     }
@@ -124,8 +123,8 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MyComm_row, &rsize);
     MPI_Comm_size(MyComm_col, &csize);
 
-    rbuf = (double *) malloc(rsize * 4 * sizeof (double));
-    cbuf = (double*) malloc(csize * 4 * sizeof (double));
+    rbuf = (double *) malloc(rsize * N * sizeof (double));
+    cbuf = (double*) malloc(csize * N * sizeof (double));
 
     MPI_Allgather(Ablock[0], stripSize * N, MPI_DOUBLE, rbuf, stripSize * N, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock[0], stripSize * N, MPI_DOUBLE, cbuf, stripSize * N, MPI_DOUBLE, MyComm_col);
@@ -134,17 +133,17 @@ int main(int argc, char *argv[]) {
     //    double *tmpAA, *tmpBB;
     double **AAblock, **BBblock;
 
-    //    tmpAA = (double *) malloc(rsize * 4 * sizeof (double));
+    //    tmpAA = (double *) malloc(rsize * N * sizeof (double));
     //    AAblock = (double **) malloc(sizeof (double *) * rsize);
     //    for (i = 0; i < rsize; i++)
     //        AAblock[i] = &tmpAA[i * N];
-    AAblock = matrix_creator(rsize, 4);
+    AAblock = matrix_creator(rsize, N);
 
-    //    tmpBB = (double *) malloc(csize * 4 * sizeof (double));
+    //    tmpBB = (double *) malloc(csize * N * sizeof (double));
     //    BBblock = (double **) malloc(sizeof (double *) * csize);
     //    for (i = 0; i < csize; i++)
     //        BBblock[i] = &tmpBB[i * N];
-    BBblock = matrix_creator(csize, 4);
+    BBblock = matrix_creator(csize, N);
 
     k = 0;
     for (j = 0; j < N; j = j + N / (numnodes / 2)) {
