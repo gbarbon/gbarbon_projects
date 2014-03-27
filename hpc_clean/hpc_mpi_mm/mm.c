@@ -10,7 +10,7 @@
 #define TAG 13
 
 int* coordinate(int procNum, int totalProc) {
-    int* coord = (int*) calloc(2, sizeof (int)); 
+    int* coord = (int*) calloc(2, sizeof (int));
     int var;
     var = sqrt(totalProc);
     coord[0] = procNum / var;
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
 
     /*stopwatch*/
-    Stopwatch watch = StopwatchCreate();    
+    Stopwatch watch = StopwatchCreate();
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -36,20 +36,24 @@ int main(int argc, char *argv[]) {
 
     N = atoi(argv[1]);
     numnodes = 4;
-
-    // allocate A, B, and C --- note that you want these to be
-    // contiguously allocated.  Workers need less memory allocated.
+    stripSize = N / numnodes;
 
     Ablock = matrix_creator(N / numnodes, N);
     Bblock = matrix_creator(N / numnodes, N);
     Cblock = matrix_creator(N / numnodes, N);
 
     if (myrank == 0) {
+        /*start timer*/
+        StopwatchStart(watch);
 
+        /* 
+         * allocate A, B, and C --- note that you want these to be
+         * contiguously allocated.  Workers need less memory allocated.
+         */
         A = matrix_creator(N, N);
         B = matrix_creator(N, N);
         C = matrix_creator(N, N);
-        
+
         matrix_init(A, N);
         matrix_init(B, N);
 
@@ -76,18 +80,11 @@ int main(int argc, char *argv[]) {
             Avett[i] = &tmpA[i * N];
             Bvett[i] = &tmpB[i * N];
         }
-    }
 
-    stripSize = N / numnodes;
-
-    /* send each node its piece of A and B */
-    if (myrank == 0) {
-        /*start timer*/
-        StopwatchStart(watch);
-        
         offset = 0;
         numElements = stripSize * N;
 
+        /* send each node its piece of A and B */
         for (i = 0; i < numnodes; i++) {
             MPI_Send(Avett[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bvett[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
@@ -102,7 +99,7 @@ int main(int argc, char *argv[]) {
     coo = coordinate(myrank, numnodes);
 
     /*MPI_Barrier(MPI_COMM_WORLD);*/
-    /*creazione communicatori per la condivisione dei blocchi necessari alla moltiplicazione*/
+    /*communicators creation in order to split blocks that will be used in multiplication*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
 
@@ -134,7 +131,7 @@ int main(int argc, char *argv[]) {
     MPI_Allgather(Bblock[0], stripSize * N, MPI_DOUBLE, cbuf, stripSize * N, MPI_DOUBLE, MyComm_col);
 
     /* ripristina la versione a matrice */
-//    double *tmpAA, *tmpBB;
+    //    double *tmpAA, *tmpBB;
     double **AAblock, **BBblock;
 
     //    tmpAA = (double *) malloc(rsize * 4 * sizeof (double));
@@ -160,7 +157,52 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    int l, m;
+    for (i = 0; i < N / numnodes; i++) {
+        m = 0;
+        for (l = 0; l < N / (numnodes / 2); l++) {
+            for (j = 0; j < N / (numnodes / 2); j++) {
+                for (k = 0; k < N; k++) {
+                    Cblock[i][m] += AAblock[l][k] * BBblock[j][k];
+                }
+                m++;
+            }
+        }
+    }
+
+    /* master receives from workers  -- note could be done via MPI_Gather */
+    int gsize;
+    double *Carray;
+    
     if (myrank == 0) {
+        MPI_Comm_size(MPI_COMM_WORLD, &gsize);
+        Carray = (double *) malloc(gsize * N * sizeof (double));
+    }
+
+    MPI_Gather(Cblock[0], stripSize * N, MPI_DOUBLE, Carray, stripSize * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+    if (myrank == 0) {
+
+        /* trasform Carray into matrix C */
+        k = 0;
+        for (i = 0; i < N; i = i + N / (numnodes / 2)) {
+            for (j = 0; j < N; j = j + N / (numnodes / 2)) {
+                for (r = i; r < i + N / (numnodes / 2); r++) {
+                    for (c = j; c < j + N / (numnodes / 2); c++) {
+                        C[r][c] = Carray[k];
+                        k++;
+                    }
+                }
+            }
+        }
+
+        /*stopwatch stop*/
+        StopwatchStop(watch);
+        StopwatchPrintWithComment("Master total time: %f\n", watch);
+
+        /* print out matrix here, if I'm the master */
+        printmatrix(N, N, C);
+
         freematrix(N, A);
         freematrix(N, B);
         freematrix(N, C);
@@ -168,10 +210,7 @@ int main(int argc, char *argv[]) {
         free(tmpB);
         free(Avett);
         free(Bvett);
-
-        /*stopwatch stop*/
-        StopwatchStop(watch);
-        StopwatchPrintWithComment("Master total time: %f\n", watch);
+        free(Carray);
     }
 
     freematrix(N / numnodes, Ablock);
