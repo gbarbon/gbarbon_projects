@@ -133,6 +133,10 @@ int main(int argc, char** argv) {
     }
 
     if (myrank == 0) {
+
+        // start timer
+        startTime = MPI_Wtime();
+
         // invio di una riga di A ad ogni nodo slave
         for (i = 0; i < numnodes - 1; i++) {
             if (index < N && index != -1) {
@@ -203,12 +207,17 @@ int main(int argc, char** argv) {
             }
         }
 
-        if (recv == N) {
-        printf("Stampa C\n");
-        stampaMat(C, N);
+        // stop timer
+        endTime = MPI_Wtime();
+        printf("Time is %f\n", endTime - startTime);
 
-        free(A);
-        free(C);
+
+        if (recv == N) {
+            printf("Print C\n");
+            stampaMat(C, N);
+
+            free(A);
+            free(C);
         }
     }
     //}
@@ -222,9 +231,9 @@ int main(int argc, char** argv) {
         free(ris);
     }
 
-    printf("Myrank is %d. Fine while\n", myrank);
+
     MPI_Finalize();
-    printf("Myrank is %d. Finalize\n", myrank);
+
     return 0;
 }
 
