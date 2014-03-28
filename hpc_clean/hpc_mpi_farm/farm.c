@@ -17,7 +17,7 @@
  * 
  */
 
-double* mat2array(double **Mat, int n, double* vett) {
+/*double* mat2array(double **Mat, int n, double* vett) {
     int i, j, k;
     k = 0;
     for (i = 0; i < n; i++) {
@@ -49,7 +49,7 @@ void stampaMat(double **Mat, int n) {
         }
         printf("\n");
     }
-}
+}*/
 
 int main(int argc, char** argv) {
 
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
 
         B = matrix_creator(N, N);
 
-        Bvett = (double *) malloc(sizeof (double) * N * N);
+        //Bvett = (double *) malloc(sizeof (double) * N * N);
 
         rigaA = (double *) malloc(N * sizeof (double));
         ris = (double *) malloc(N * sizeof (double));
@@ -129,10 +129,10 @@ int main(int argc, char** argv) {
             }
         }*/
 
-        simple_matrix_init(double** A, int N);
-        simple_matrix_init(double** B, int N)
+        simple_matrix_init(A, N);
+        simple_matrix_init(B, N);
         
-        Bvett = mat2array(B, N, Bvett);
+        Bvett = matrix_vectorizer(N, N, B);
 
         for (i = 0; i < numnodes - 1; i++) {
             MPI_Send(Bvett, N*N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD);
@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. B inviated\n", myrank);
     } else {
         MPI_Recv(Bvett, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        B = array2mat(Bvett, N, B);
+        B = devectorizer(N, N, Bvett);
         printf("Myrank is %d. B received\n", myrank);
     }
 
@@ -225,16 +225,20 @@ int main(int argc, char** argv) {
 
         if (recv == N) {
             printf("Print C\n");
-            stampaMat(C, N);
+            //stampaMat(C, N);
+            printmatrix(N, N, C);
 
-            free(A);
-            free(C);
+            //free(A);
+            freematrix(N, A);
+            //free(C);
+            freematrix(N, C);
         }
     }
     //}
 
-    free(B);
-    free(tmp);
+    //free(B);
+    freematrix(N, B);
+    //free(tmp);
     free(Bvett);
 
     if (myrank != 0) {
