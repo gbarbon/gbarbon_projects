@@ -18,6 +18,58 @@ int* coordinate(int procNum, int totalProc) {
     return coord;
 }
 
+/**
+ * Send rows and cols of A and B to the interested worker
+ *
+ * @param A     Pointer to the first nxn matrix
+ * @param B     Pointer to the second nxn matrix
+ * @param offset        Dimension of the "local" matrix of the worker
+ * @param n     Dimension of the A & B matrices
+ */
+void master_sender(double** A, double** B, int offset, int n) {
+    int i, j, x, y, worker = 0;
+    double * tempA, * tempB, ** Ablock, ** Bblock;
+
+    /*stopwatch start*/
+    Stopwatch watch = StopwatchCreate();
+    StopwatchStart(watch);
+
+    /**/
+    Ablock = matrix_creator(offset, offset);
+    Bblock = matrix_creator(offset, offset);
+
+    for (i = 0; i < n; i += offset)
+        for (j = 0; j < n; j += offset) {
+
+            for (x = i; x < offset + i; x++)
+                for (y = j; y < offset + j; y++) {
+                    Ablock[x - i][y - j] = A[x][y];
+                    Bblock[x - i][y - j] = B[x][y];
+                }
+            /*printmatrix(offset,offset,Ablock);*/
+
+            /*vectorize the two pieces of matrices in order to send them*/
+            tempA = matrix_vectorizer(offset, offset, Ablock);
+            tempB = matrix_vectorizer(offset, offset, Bblock);
+            /*printvector(offset*offset,tempA);*/
+
+            /*MPI send of rows and cols. Notice tag 0 for rows, tag 1 for cols*/
+            MPI_Send(tempA, offset * offset, MPI_DOUBLE, worker, 0, MPI_COMM_WORLD);
+            MPI_Send(tempB, offset * offset, MPI_DOUBLE, worker, 1, MPI_COMM_WORLD);
+
+            free(tempA);
+            free(tempB);
+            worker++; /*increment worker number*/
+        }
+
+    /*stopwatch stop*/
+    StopwatchStop(watch);
+    StopwatchPrintWithComment("Time in master_sender function is: %f\n", watch);
+    free(watch);
+    free(Ablock);
+    free(Bblock);
+}
+
 int main(int argc, char *argv[]) {
     double **A, **B, **C, **Ablock, **Bblock, **Cblock;
     int numElements, offset, stripSize, myrank, numnodes, N, i, j, k, r, c;
@@ -36,8 +88,11 @@ int main(int argc, char *argv[]) {
 
     N = atoi(argv[1]);
     stripSize = N / numnodes;
-//    numElements = stripSize * N;
-    numElements = (N*N)/numnodes;
+    //    numElements = stripSize * N;
+    /* number of elements for each process*/
+    numElements = (N * N) / numnodes;
+    //there we may also calculate "lateral" dimension of block:
+    int dim = N / sqrt(numnodes);
 
     if (myrank == 0) {
         /*start timer*/
@@ -51,28 +106,13 @@ int main(int argc, char *argv[]) {
         /*initializes A and B randomly*/
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
-        /*printmatrix(N,N,A);*/
+        printmatrix(N, N, A);
 
         /* transpose B */
         matrix_transposer(N, B);
         /*printmatrix(N,N,B);*/
 
-        /* transform A & B into vectors */
-        double * Aarray = matrix_vectorizer(N,N,A);
-        double * Barray = matrix_vectorizer(N,N,B);
-        
-        /* MISSING: split A & B in the correct way */
-
-        /* send each node its piece of A and B */
-        offset = 0;
-        for (i = 0; i < numnodes; i++) {
-            MPI_Send(&Aarray[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-            MPI_Send(&Barray[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-            offset += numElements;
-        }
-        
-        free(Aarray);
-        free(Barray);
+        master_sender(A, B, dim, N);
     }
 
     Ablock = matrix_creator(stripSize, N);
@@ -80,9 +120,9 @@ int main(int argc, char *argv[]) {
     Cblock = matrix_creator(stripSize, N);
 
     /*receive my part of A and B*/
-    MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    
+    MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
     /* coords computation */
     coo = coordinate(myrank, numnodes);
 
@@ -105,7 +145,7 @@ int main(int argc, char *argv[]) {
     double **AAblock, **BBblock;
     AAblock = devectorizer(rsize, N, rbuf);
     BBblock = devectorizer(csize, N, cbuf);
-    
+
     int l, m;
     for (i = 0; i < N / numnodes; i++) {
         m = 0;
