@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
         for (i = 0; i < N; i++)
             B[i] = &tmp[i * N];*/
 
-        B = matrix_creator(N, N);
+        //B = matrix_creator(N, N);
 
         //Bvett = (double *) malloc(sizeof (double) * N * N);
 
