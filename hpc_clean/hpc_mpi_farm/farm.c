@@ -5,51 +5,8 @@
  * Created on 24 marzo 2014, 10.53
  */
 
-/*#include <mpi.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>*/
-
 #include "header.h"
 #define TAG 13
-
-/*
- * 
- */
-
-/*double* mat2array(double **Mat, int n, double* vett) {
-    int i, j, k;
-    k = 0;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            vett[k] = Mat[i][j];
-            k++;
-        }
-    }
-    return vett;
-}
-
-double** array2mat(double* vett, int n, double **Mat) {
-    int i, j, k;
-    k = 0;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            Mat[i][j] = vett[k];
-            k++;
-        }
-    }
-    return Mat;
-}
-
-void stampaMat(double **Mat, int n) {
-    int i, j;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            printf("%f ", Mat[i][j]);
-        }
-        printf("\n");
-    }
-}*/
 
 int main(int argc, char** argv) {
 
@@ -63,9 +20,6 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &numnodes);
 
     N = atoi(argv[1]);
-    //numnodes = 4;
-    //debug
-
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -73,25 +27,10 @@ int main(int argc, char** argv) {
     if (myrank == 0) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
-        /*tmp = (double *) malloc(sizeof (double) * N * N);
-        A = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            A[i] = &tmp[i * N];*/
 
         A = matrix_creator(N, N);
 
-
-        /*tmp = (double *) malloc(sizeof (double) * N * N);
-        B = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            B[i] = &tmp[i * N];*/
-
         B = matrix_creator(N, N);
-
-        /*tmp = (double *) malloc(sizeof (double) * N * N);
-        C = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            C[i] = &tmp[i * N];*/
 
         C = matrix_creator(N, N);
 
@@ -103,32 +42,13 @@ int main(int argc, char** argv) {
     //debug
 
     if (myrank != 0) {
-        /*tmp = (double *) malloc(sizeof (double) * N * N);
-        B = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++)
-            B[i] = &tmp[i * N];*/
-
-        //B = matrix_creator(N, N);
-
         Bvett = (double *) malloc(sizeof (double) * N * N);
-
         rigaA = (double *) malloc(N * sizeof (double));
         ris = (double *) malloc(N * sizeof (double));
-
-
     }
 
     if (myrank == 0) {
         // initialize A and B
-        /*double w = 0.0;
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < N; j++) {
-                A[i][j] = w;
-                B[i][j] = w;
-                w = w + 1.0;
-            }
-        }*/
-
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
 
@@ -138,9 +58,9 @@ int main(int argc, char** argv) {
             MPI_Send(Bvett, N*N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD);
         }
         printf("Myrank is %d. B inviated\n", myrank);
-    } else {
+    }
+    else {
         MPI_Recv(Bvett, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        printf("Myrank is %d. Bvett ok\n", myrank);
         B = devectorizer(N, N, Bvett);
         printf("Myrank is %d. B received\n", myrank);
     }
@@ -154,7 +74,6 @@ int main(int argc, char** argv) {
         for (i = 0; i < numnodes - 1; i++) {
             if (index < N && index != -1) {
                 MPI_Send(&index, 1, MPI_INT, i + 1, i + 1, MPI_COMM_WORLD);
-                //rigaA = getRiga(A, *indice);
                 MPI_Send(A[index], N, MPI_DOUBLE, i + 1, i + 1, MPI_COMM_WORLD);
                 index = index + 1;
             }// se ci sono più nodi che righe mando -1
@@ -167,7 +86,6 @@ int main(int argc, char** argv) {
 
     }
 
-    //while (recv < N) {
     if (myrank != 0) {
         // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
         MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -225,21 +143,14 @@ int main(int argc, char** argv) {
 
 
         if (recv == N) {
-            printf("Print C\n");
-            //stampaMat(C, N);
             printmatrix(N, N, C);
 
-            //free(A);
             freematrix(N, A);
-            //free(C);
             freematrix(N, C);
         }
     }
-    //}
 
-    //free(B);
     freematrix(N, B);
-    //free(tmp);
     free(Bvett);
 
     if (myrank != 0) {
