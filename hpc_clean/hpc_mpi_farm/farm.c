@@ -58,8 +58,7 @@ int main(int argc, char** argv) {
             MPI_Send(Bvett, N*N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD);
         }
         printf("Myrank is %d. B inviated\n", myrank);
-    }
-    else {
+    } else {
         MPI_Recv(Bvett, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         B = devectorizer(N, N, Bvett);
         printf("Myrank is %d. B received\n", myrank);
@@ -119,7 +118,6 @@ int main(int argc, char** argv) {
             for (i = 0; i < numnodes - 1; i++) {
                 if (recv < N) {
                     MPI_Recv(&indexR, 1, MPI_INT, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    printf("indexR= %d\n", indexR);
                     MPI_Recv(C[indexR], N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     recv++;
                 }
@@ -133,7 +131,6 @@ int main(int argc, char** argv) {
                     index = -1;
                     MPI_Send(&index, 1, MPI_INT, i + 1, i + 1, MPI_COMM_WORLD);
                 }
-                printf("Myrank is %d. recv= %d\n", myrank, recv);
             }
         }
 
