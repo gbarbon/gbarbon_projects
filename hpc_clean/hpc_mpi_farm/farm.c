@@ -110,12 +110,12 @@ int main(int argc, char** argv) {
 
         //B = matrix_creator(N, N);
 
-        //Bvett = (double *) malloc(sizeof (double) * N * N);
+        Bvett = (double *) malloc(sizeof (double) * N * N);
 
         rigaA = (double *) malloc(N * sizeof (double));
         ris = (double *) malloc(N * sizeof (double));
 
-        printf("Myrank is %d. B allocated\n", myrank);
+
     }
 
     if (myrank == 0) {
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
-        
+
         Bvett = matrix_vectorizer(N, N, B);
 
         for (i = 0; i < numnodes - 1; i++) {
@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. B inviated\n", myrank);
     } else {
         MPI_Recv(Bvett, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("Myrank is %d. Bvett ok\n", myrank);
         B = devectorizer(N, N, Bvett);
         printf("Myrank is %d. B received\n", myrank);
     }
