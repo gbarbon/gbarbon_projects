@@ -53,6 +53,9 @@ int main(int argc, char** argv) {
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
         
+        
+        printmatrix(N, N, A);
+
         /* suddivisione in blocchi della matrice */
         tmpA = (double *) malloc(sizeof (double) * N * N);
         tmpB = (double *) malloc(sizeof (double) * N * N);
@@ -72,15 +75,40 @@ int main(int argc, char** argv) {
             }
         }
 
+
+
+
         for (i = 0; i < N; i++) {
             Ablock[i] = &tmpA[i * N];
             Bblock[i] = &tmpB[i * N];
         }
-        
-        printmatrix(N, N, Ablock);
-        
-    }
-    else {
 
+        printmatrix(N, N, Ablock);
+
+        //printmatrix(N, N, Bblock);
+
+        k = 1;
+        matrix_transposer(N,A);
+        // 2 sostituirlo con sqrt(N)
+        double **r_swap = (double **) malloc(sizeof (double *) * N);
+        for (i = 0; i < N; i++) {
+            r_swap[i] = Ablock[i];
+        }
+        printf("r_swap = Ablock \n");
+        for (i = 2; i < N; i = i + 2) {
+            for (j = 0; j < 2; j++) {
+                index = (j + k) % 2;             
+                Ablock[i + j] = r_swap[i + index];                
+            }
+            k++;
+        }
+        //matrix_transposer(N,Ablock);
+        printmatrix(N, N, Ablock);
     }
+
+
+
+    MPI_Finalize();
+
+    return 0;
 }
