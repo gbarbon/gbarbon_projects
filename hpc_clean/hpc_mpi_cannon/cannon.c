@@ -62,7 +62,7 @@ void skewing_column(double ** M, int n) {
         k++;
     }
 
-    freematrix(n, c_swap);
+    //freematrix(n, c_swap);
 }
 
 double ** matrix_block(double ** matrix, int block, int n) {
