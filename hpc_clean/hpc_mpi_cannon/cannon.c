@@ -8,11 +8,96 @@
 #include "header.h"
 #define TAG 13
 
+int** coordinate(int totalProc) {
+    int i, var;
+
+    int **coord = (int **) malloc(totalProc * sizeof (int*));
+    for (i = 0; i < totalProc; i++)
+        coord[i] = (int*) calloc(2, sizeof (int));
+
+    var = 3;
+
+    for (i = 0; i < totalProc; i++) {
+        coord[i][0] = i / var;
+        coord[i][1] = i % var;
+    }
+
+    return coord;
+}
+
+void skewing_row(double ** M, int n) {
+    int i, j, k, index;
+
+    double **r_swap = (double **) malloc(sizeof (double*) * n);
+    for (i = 0; i < n; i++) {
+        r_swap[i] = M[i];
+    }
+
+    k = 1;
+    for (i = sqrt(n); i < n; i = i + sqrt(n)) {
+        for (j = 0; j < sqrt(n); j++) {
+            index = (j + k) % (int) sqrt(n);
+            M[i + j] = r_swap[i + index];
+        }
+        k++;
+    }
+
+    //freematrix(n, r_swap);
+}
+
+void skewing_column(double ** M, int n) {
+    int i, j, k, index;
+
+    double **c_swap = (double **) malloc(sizeof (double*) * n);
+    for (i = 0; i < n; i++) {
+        c_swap[i] = M[i];
+    }
+
+    k = 1;
+    for (i = 1; i < n; i = i + sqrt(n)) {
+        for (j = 0; j < sqrt(n); j++) {
+            index = (j + k) % (int) sqrt(n);
+            M[i + (int) sqrt(n) * j] = c_swap[i + (int) sqrt(n) * index];
+        }
+        k++;
+    }
+
+    freematrix(n, c_swap);
+}
+
+double ** matrix_block(double ** matrix, int block, int n) {
+    double *tmpM, **Mblock;
+    int i, j, r, c, k;
+
+    tmpM = (double *) malloc(sizeof (double) * n * n);
+    Mblock = (double **) malloc(sizeof (double *) * n);
+
+    //Mblock = matrix_creator(n, n);
+
+    k = 0;
+    for (i = 0; i < n; i = i + n / (block / 2)) {
+        for (j = 0; j < n; j = j + n / (block / 2)) {
+            for (r = i; r < i + n / (block / 2); r++) {
+                for (c = j; c < j + n / (block / 2); c++) {
+                    tmpM[k] = matrix[r][c];
+                    k++;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < n; i++) {
+        Mblock[i] = &tmpM[i * n];
+    }
+
+    return Mblock;
+}
+
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int nblock, recv, indexR, index, myrank, numnodes, N, i, j, k, r, c;
+    int **coo, nblock, recv, indexR, index, myrank, numnodes, N, i, j, k, r, c;
 
     MPI_Init(&argc, &argv);
 
@@ -52,58 +137,24 @@ int main(int argc, char** argv) {
         // initialize A and B
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
-        
-        
-        printmatrix(N, N, A);
 
-        /* suddivisione in blocchi della matrice */
-        tmpA = (double *) malloc(sizeof (double) * N * N);
-        tmpB = (double *) malloc(sizeof (double) * N * N);
+        // suddivisione in blocchi della matrice
         Ablock = (double **) malloc(sizeof (double *) * N);
         Bblock = (double **) malloc(sizeof (double *) * N);
 
-        int k = 0;
-        for (i = 0; i < N; i = i + N / (numnodes / 2)) {
-            for (j = 0; j < N; j = j + N / (numnodes / 2)) {
-                for (r = i; r < i + N / (numnodes / 2); r++) {
-                    for (c = j; c < j + N / (numnodes / 2); c++) {
-                        tmpA[k] = A[r][c];
-                        tmpB[k] = B[c][r];
-                        k++;
-                    }
-                }
-            }
-        }
-
-
-
-
-        for (i = 0; i < N; i++) {
-            Ablock[i] = &tmpA[i * N];
-            Bblock[i] = &tmpB[i * N];
-        }
+        Ablock = matrix_block(A, nblock, N);
+        Bblock = matrix_block(B, nblock, N);
 
         printmatrix(N, N, Ablock);
+        printmatrix(N, N, Bblock);
 
-        //printmatrix(N, N, Bblock);
+        // skewing
+        skewing_row(Ablock, N);
+        skewing_column(Bblock, N);
 
-        k = 1;
-        matrix_transposer(N,A);
-        // 2 sostituirlo con sqrt(N)
-        double **r_swap = (double **) malloc(sizeof (double *) * N);
-        for (i = 0; i < N; i++) {
-            r_swap[i] = Ablock[i];
-        }
-        printf("r_swap = Ablock \n");
-        for (i = 2; i < N; i = i + 2) {
-            for (j = 0; j < 2; j++) {
-                index = (j + k) % 2;             
-                Ablock[i + j] = r_swap[i + index];                
-            }
-            k++;
-        }
-        //matrix_transposer(N,Ablock);
         printmatrix(N, N, Ablock);
+        printmatrix(N, N, Bblock);
+
     }
 
 
