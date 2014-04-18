@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
         offset = 0;
         numElements = stripSize * N;
 
-        for (i = 0; i < numnodes; i++) {
+        for (i = 1; i <= nblock; i++) {
             MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
 
