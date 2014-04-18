@@ -229,6 +229,8 @@ int main(int argc, char** argv) {
 
         printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
 
+        printmatrix(N / nblock, N, A);
+        printmatrix(N / nblock, N, B);
     }
 
     MPI_Finalize();
