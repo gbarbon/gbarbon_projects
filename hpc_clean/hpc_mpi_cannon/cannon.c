@@ -13,9 +13,9 @@ int** coordinate(int totalProc) {
 
     int **coord = (int **) malloc(totalProc * sizeof (int*));
     for (i = 0; i < totalProc; i++)
-        coord[i] = (int*) calloc(2, sizeof (int));
+        coord[i] = (int*) calloc(3, sizeof (int));
 
-    var = 3;
+    var = sqrt(totalProc);
 
     for (i = 0; i < totalProc; i++) {
         coord[i][0] = i / var;
@@ -42,7 +42,7 @@ void skewing_row(double ** M, int n) {
         k++;
     }
 
-    //freematrix(n, r_swap);
+    freematrix(n, r_swap);
 }
 
 void skewing_column(double ** M, int n) {
@@ -54,7 +54,7 @@ void skewing_column(double ** M, int n) {
     }
 
     k = 1;
-    for (i = 1; i < n; i = i + sqrt(n)) {
+    for (i = 1; i < n - 1; i = i + sqrt(n)) {
         for (j = 0; j < sqrt(n); j++) {
             index = (j + k) % (int) sqrt(n);
             M[i + (int) sqrt(n) * j] = c_swap[i + (int) sqrt(n) * index];
@@ -62,7 +62,7 @@ void skewing_column(double ** M, int n) {
         k++;
     }
 
-    //freematrix(n, c_swap);
+    freematrix(n, c_swap);
 }
 
 double ** matrix_block(double ** matrix, int block, int n) {
@@ -71,8 +71,6 @@ double ** matrix_block(double ** matrix, int block, int n) {
 
     tmpM = (double *) malloc(sizeof (double) * n * n);
     Mblock = (double **) malloc(sizeof (double *) * n);
-
-    //Mblock = matrix_creator(n, n);
 
     k = 0;
     for (i = 0; i < n; i = i + n / (block / 2)) {
@@ -93,11 +91,67 @@ double ** matrix_block(double ** matrix, int block, int n) {
     return Mblock;
 }
 
+// determinazione del rank del processo a cui devo inviare il sottoblocco di A posseduto
+
+int getRankRowDest(int rank, int np) {
+    int rank_dest;
+    int proc_lato = (int) sqrt(np);
+    // se siamo ad inizio riga
+    if ((rank % proc_lato) == 0)
+        rank_dest = rank + (proc_lato - 1);
+    else
+        rank_dest = rank - 1;
+
+    return rank_dest;
+}
+
+// determinazione del rank del processo da cui devo ricevere il sottoblocco di A
+
+int getRankRowMit(int rank, int np) {
+    int rank_mit;
+    int proc_lato = (int) sqrt(np);
+    // se siamo sull'ultima colonna
+    if ((rank + 1) % proc_lato == 0)
+        rank_mit = rank - (proc_lato - 1);
+    else
+        rank_mit = rank + 1;
+
+    return rank_mit;
+}
+
+// determinazione del rank del processo a cui devo inviare il sottoblocco di B
+
+int getRankColDest(int rank, int np) {
+    int rank_dest;
+    int proc_lato = (int) sqrt(np);
+
+    if (rank < proc_lato)
+        rank_dest = np - (proc_lato - rank);
+    else
+        rank_dest = rank - proc_lato;
+
+    return rank_dest;
+}
+
+// determinazione del rank del processo da cui ricevere il sottoblocco di B
+
+int getRankColMit(int rank, int np) {
+    int rank_mit;
+    int proc_lato = (int) sqrt(np);
+
+    if (rank >= (np - proc_lato))
+        rank_mit = (rank + proc_lato) % np;
+    else
+        rank_mit = rank + proc_lato;
+
+    return rank_mit;
+}
+
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int **coo, nblock, recv, indexR, index, myrank, numnodes, N, i, j, k, r, c;
+    int **coo, nblock, stripSize, numElements, offset, myrank, numnodes, N, i, j, k;
 
     MPI_Init(&argc, &argv);
 
@@ -121,17 +175,15 @@ int main(int argc, char** argv) {
         C = matrix_creator(N, N);
 
         printf("Myrank is %d. A,B,C allocated\n", myrank);
-    }
-
-    //debug
-
-    if (myrank != 0) {
+    } else {
         A = matrix_creator(N / nblock, N);
 
         B = matrix_creator(N / nblock, N);
 
         C = matrix_creator(N / nblock, N);
     }
+
+    stripSize = N / nblock;
 
     if (myrank == 0) {
         // initialize A and B
@@ -148,16 +200,36 @@ int main(int argc, char** argv) {
         printmatrix(N, N, Ablock);
         printmatrix(N, N, Bblock);
 
-        // skewing
+        // skewing        
         skewing_row(Ablock, N);
         skewing_column(Bblock, N);
 
         printmatrix(N, N, Ablock);
         printmatrix(N, N, Bblock);
 
+        // send
+        offset = 0;
+        numElements = stripSize * N;
+
+        for (i = 0; i < numnodes; i++) {
+            MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
+            MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
+
+            offset += stripSize;
+        }
+
+        printf("Myrank is %d. Must be 0. Pieces of A and B sent.\n", myrank);
+
+    } else {
+        // receive my part of A and B
+        numElements = stripSize * N;
+
+        MPI_Recv(A[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(B[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
+
     }
-
-
 
     MPI_Finalize();
 
