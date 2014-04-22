@@ -244,8 +244,8 @@ int main(int argc, char** argv) {
         printf("Myrank is %d\n", myrank);
         printmatrix(lato_b, lato_b, C);
 
-        row_dest = getRankColDest(myrank, nblock);
-        row_mit = getRankColMit(myrank, nblock);
+        row_dest = getRankRowDest(myrank, nblock);
+        row_mit = getRankRowMit(myrank, nblock);
         
         printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
         
