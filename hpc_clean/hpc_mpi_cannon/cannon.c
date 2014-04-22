@@ -220,6 +220,7 @@ int main(int argc, char** argv) {
         
         printf("Myrank is %d\n", myrank);
         printmatrix(N / nblock, N, Ablock);
+        printmatrix(N / nblock, N, Bblock);
 
         A = devectorizer(lato_b, lato_b, Ablock[0]);
         B = devectorizer(lato_b, lato_b, Bblock[0]);
