@@ -143,7 +143,8 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int **coo, nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
+    int nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
+    int row_dest, row_mit, col_dest, col_mit;
 
     MPI_Init(&argc, &argv);
 
@@ -152,7 +153,7 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
     nblock = numnodes - 1;
-    
+
     stripSize = N / nblock;
 
     // allocate A, B, and C --- note that you want these to be
@@ -169,7 +170,7 @@ int main(int argc, char** argv) {
         C = matrix_creator(N, N);
 
         printf("Myrank is %d. A,B,C allocated\n", myrank);
-    
+
         // initialize A and B
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
@@ -217,21 +218,17 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
 
         lato_b = N / ((int) sqrt(nblock));
-        
-        A = devectorizer(lato_b, lato_b, Ablock[0]);
-        B = devectorizer(lato_b, lato_b, Bblock[0]);
-        matrix_transposer(lato_b, B);
-        
-        printf("Myrank is %d\n", myrank);
-        printmatrix(lato_b, lato_b, A);
-        
-        printf("Myrank is %d\n", myrank);
-        printmatrix(lato_b, lato_b, B);
-
         C = matrix_creator(lato_b, lato_b);
 
         // initialize C
         zero_matrix_init(C, lato_b, lato_b);
+
+        
+        A = devectorizer(lato_b, lato_b, Ablock[0]);
+        B = devectorizer(lato_b, lato_b, Bblock[0]);
+        matrix_transposer(lato_b, B);
+
+        
 
         // Multiplication
         for (i = 0; i < lato_b; i++) {
@@ -243,10 +240,25 @@ int main(int argc, char** argv) {
                 l++;
             }
         }
-        
+
         printf("Myrank is %d\n", myrank);
         printmatrix(lato_b, lato_b, C);
 
+        row_dest = getRankColDest((myrank - 1), nblock);
+        row_mit = getRankColMit((myrank - 1), nblock);
+        
+        printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
+        
+        // invio e ricezione del blocco A
+        //MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        
+        col_dest = getRankColDest((myrank - 1), nblock);
+        col_mit = getRankColMit((myrank - 1), nblock);
+        
+        printf("Myrank is %d. col_dest= %d, col_mit= %d\n", myrank, col_dest, col_mit);
+        
+        // invio e ricezione del blocco B
+        //MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
     MPI_Finalize();
