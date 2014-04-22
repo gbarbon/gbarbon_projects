@@ -53,7 +53,7 @@ double ** matrix_block(double ** matrix, int block, int n) {
     int i, j, r, c, k;
 
     tmpM = (double *) malloc(sizeof (double) * n * n);
-    Mblock = (double **) malloc(sizeof (double *) * block);
+    Mblock = (double **) malloc(sizeof (double *) * n);
 
     k = 0;
     for (i = 0; i < n; i = i + n / (block / 2)) {
@@ -67,8 +67,8 @@ double ** matrix_block(double ** matrix, int block, int n) {
         }
     }
 
-    for (i = 0; i < block; i++) {
-        Mblock[i] = &tmpM[i * block];
+    for (i = 0; i < n; i++) {
+        Mblock[i] = &tmpM[i * n];
     }
 
     return Mblock;
@@ -94,7 +94,7 @@ int getRankRowDest(int rank, int np) {
     else
         rank_dest = rank - 1;
 
-    return (rank_dest + 1);
+    return rank_dest;
 }
 
 // determinazione del rank del processo da cui devo ricevere il sottoblocco di A
@@ -108,7 +108,7 @@ int getRankRowMit(int rank, int np) {
     else
         rank_mit = rank + 1;
 
-    return (rank_mit + 1);
+    return rank_mit;
 }
 
 // determinazione del rank del processo a cui devo inviare il sottoblocco di B
@@ -143,8 +143,7 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
-    int row_dest, row_mit, col_dest, col_mit;
+    int **coo, nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
 
     MPI_Init(&argc, &argv);
 
@@ -153,8 +152,8 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
     nblock = numnodes - 1;
-
-    //stripSize = N / nblock;
+    
+    stripSize = N / nblock;
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -170,45 +169,45 @@ int main(int argc, char** argv) {
         C = matrix_creator(N, N);
 
         printf("Myrank is %d. A,B,C allocated\n", myrank);
-
+    
         // initialize A and B
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
         zero_matrix_init(C, N, N);
 
         // suddivisione in blocchi della matrice
-        Ablock = (double **) malloc(sizeof (double *) * nblock);
-        Bblock = (double **) malloc(sizeof (double *) * nblock);
+        Ablock = (double **) malloc(sizeof (double *) * N);
+        Bblock = (double **) malloc(sizeof (double *) * N);
 
         Ablock = matrix_block(A, nblock, N);
         Bblock = matrix_block(B, nblock, N);
 
-        printmatrix(nblock, (N * N) / nblock, Ablock);
-        printmatrix(nblock, (N * N) / nblock, Bblock);
+        printmatrix(N, N, Ablock);
+        printmatrix(N, N, Bblock);
 
         // skewing        
-        skewing_row(Ablock, nblock);
-        skewing_column(Bblock, nblock);
+        skewing_row(Ablock, N);
+        skewing_column(Bblock, N);
 
-        printmatrix(nblock, (N * N) / nblock, Ablock);
-        printmatrix(nblock, (N * N) / nblock, Bblock);
+        printmatrix(N, N, Ablock);
+        printmatrix(N, N, Bblock);
 
         // send
         offset = 0;
         numElements = stripSize * N;
 
-        /*for (i = 1; i <= nblock; i++) {
+        for (i = 1; i <= nblock; i++) {
             MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
 
             offset += stripSize;
-        }*/
+        }
 
         printf("Myrank is %d. Must be 0. Pieces of A and B sent.\n", myrank);
 
     } else {
         // receive my part of A and B
-        /*numElements = stripSize * N;
+        numElements = stripSize * N;
         Ablock = matrix_creator(N / nblock, N);
         Bblock = matrix_creator(N / nblock, N);
 
@@ -238,13 +237,10 @@ int main(int argc, char** argv) {
                 l++;
             }
         }
+        
+        printf("Myrank is %d\n", myrank);
+        printmatrix(lato_b, lato_b, C);
 
-        row_dest = getRankRowDest((myrank - 1), nblock);
-        row_dest = getRankRowMit((myrank - 1), nblock);
-
-        // invio e ricezione del blocco A
-        MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-*/
     }
 
     MPI_Finalize();
