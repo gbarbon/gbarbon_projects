@@ -221,6 +221,12 @@ int main(int argc, char** argv) {
         A = devectorizer(lato_b, lato_b, Ablock[0]);
         B = devectorizer(lato_b, lato_b, Bblock[0]);
         matrix_transposer(lato_b, B);
+        
+        printf("Myrank is %d\n", myrank);
+        printmatrix(lato_b, lato_b, A);
+        
+        printf("Myrank is %d\n", myrank);
+        printmatrix(lato_b, lato_b, B);
 
         C = matrix_creator(lato_b, lato_b);
 
