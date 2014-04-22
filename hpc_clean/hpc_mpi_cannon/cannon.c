@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
 
-    if (myrank == 0) {
+    if (myrank == 4) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
 
@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
         offset = 0;
         numElements = stripSize * N;
 
-        for (i = 1; i <= nblock; i++) {
+        for (i = 0; i < nblock; i++) {
             MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
 
@@ -244,16 +244,16 @@ int main(int argc, char** argv) {
         printf("Myrank is %d\n", myrank);
         printmatrix(lato_b, lato_b, C);
 
-        row_dest = getRankColDest((myrank - 1), nblock);
-        row_mit = getRankColMit((myrank - 1), nblock);
+        row_dest = getRankColDest(myrank, nblock);
+        row_mit = getRankColMit(myrank, nblock);
         
         printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
         
         // invio e ricezione del blocco A
         //MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
-        col_dest = getRankColDest((myrank - 1), nblock);
-        col_mit = getRankColMit((myrank - 1), nblock);
+        col_dest = getRankColDest(myrank, nblock);
+        col_mit = getRankColMit(myrank, nblock);
         
         printf("Myrank is %d. col_dest= %d, col_mit= %d\n", myrank, col_dest, col_mit);
         
