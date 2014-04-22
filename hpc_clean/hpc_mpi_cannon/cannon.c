@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
     N = atoi(argv[1]);
     nblock = numnodes - 1;
 
-    stripSize = N / nblock;
+    //stripSize = N / nblock;
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
