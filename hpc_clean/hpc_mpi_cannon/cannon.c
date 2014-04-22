@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
         
         // invio e ricezione del blocco A
-        //MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
         col_dest = getRankColDest(myrank, nblock);
         col_mit = getRankColMit(myrank, nblock);
@@ -258,7 +258,7 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. col_dest= %d, col_mit= %d\n", myrank, col_dest, col_mit);
         
         // invio e ricezione del blocco B
-        //MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
     MPI_Finalize();
