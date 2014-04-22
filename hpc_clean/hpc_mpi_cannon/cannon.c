@@ -223,12 +223,12 @@ int main(int argc, char** argv) {
         // initialize C
         zero_matrix_init(C, lato_b, lato_b);
 
-        
+
         A = devectorizer(lato_b, lato_b, Ablock[0]);
         B = devectorizer(lato_b, lato_b, Bblock[0]);
         matrix_transposer(lato_b, B);
 
-        
+
 
         // Multiplication
         for (i = 0; i < lato_b; i++) {
@@ -246,19 +246,25 @@ int main(int argc, char** argv) {
 
         row_dest = getRankRowDest(myrank, nblock);
         row_mit = getRankRowMit(myrank, nblock);
-        
+
         printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
-        
+
         // invio e ricezione del blocco A
         MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        
+
+        printf("Myrank is %d\n", myrank);
+        printmatrix(N / nblock, N, Ablock);
+
         col_dest = getRankColDest(myrank, nblock);
         col_mit = getRankColMit(myrank, nblock);
-        
+
         printf("Myrank is %d. col_dest= %d, col_mit= %d\n", myrank, col_dest, col_mit);
-        
+
         // invio e ricezione del blocco B
         MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        printf("Myrank is %d\n", myrank);
+        printmatrix(N / nblock, N, Bblock);
     }
 
     MPI_Finalize();
