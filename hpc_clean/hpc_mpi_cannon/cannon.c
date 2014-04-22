@@ -218,8 +218,8 @@ int main(int argc, char** argv) {
 
         lato_b = N / nblock / 2;
 
-        A = devectorizer(lato_b, lato_b, Ablock);
-        B = devectorizer(lato_b, lato_b, Bblock);
+        A = devectorizer(lato_b, lato_b, Ablock[0]);
+        B = devectorizer(lato_b, lato_b, Bblock[0]);
         matrix_transposer(lato_b, B);
 
         C = matrix_creator(lato_b, lato_b);
