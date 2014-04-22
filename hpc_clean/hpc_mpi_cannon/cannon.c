@@ -217,6 +217,9 @@ int main(int argc, char** argv) {
         printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
 
         lato_b = N / nblock / 2;
+        
+        printf("Myrank is %d\n", myrank);
+        printmatrix(N / nblock, N, Ablock);
 
         A = devectorizer(lato_b, lato_b, Ablock[0]);
         B = devectorizer(lato_b, lato_b, Bblock[0]);
