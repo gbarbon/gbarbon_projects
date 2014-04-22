@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
             offset += stripSize;
         }
 
-        printf("Myrank is %d. Must be 0. Pieces of A and B sent.\n", myrank);
+        printf("Myrank is %d. Pieces of A and B sent.\n", myrank);
 
     } else {
         // receive my part of A and B
@@ -215,17 +215,17 @@ int main(int argc, char** argv) {
         MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
+        printf("Myrank is %d. Pieces of A and B received.\n", myrank);
 
         lato_b = N / ((int) sqrt(nblock));
         C = matrix_creator(lato_b, lato_b);
-        Cparz = matrix_creator(lato_b, lato_b);
+        //Cparz = matrix_creator(lato_b, lato_b);
 
         // initialize C
         zero_matrix_init(C, lato_b, lato_b);
-        zero_matrix_init(Cparz, lato_b, lato_b);
+        //zero_matrix_init(Cparz, lato_b, lato_b);
 
-        for (index = 0; index < (int) sqrt(nblock); index++) {
+        //for (index = 0; index < (int) sqrt(nblock); index++) {
             
             A = devectorizer(lato_b, lato_b, Ablock[0]);
             B = devectorizer(lato_b, lato_b, Bblock[0]);
@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
 
             // invio e ricezione del blocco B
             //MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
+        //}
         
         printf("Myrank is %d\n", myrank);
         printmatrix (lato_b, lato_b, C);
