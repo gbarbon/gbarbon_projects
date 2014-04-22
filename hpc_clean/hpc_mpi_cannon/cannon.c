@@ -212,8 +212,8 @@ int main(int argc, char** argv) {
         Ablock = matrix_creator(N / nblock, N);
         Bblock = matrix_creator(N / nblock, N);
 
-        MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         printf("Myrank is %d. Must NOT be 0. Pieces of A and B received.\n", myrank);
 
