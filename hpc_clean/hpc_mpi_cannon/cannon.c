@@ -244,15 +244,11 @@ int main(int argc, char** argv) {
             row_dest = getRankRowDest(myrank, nblock);
             row_mit = getRankRowMit(myrank, nblock);
 
-            printf("Myrank is %d. row_dest= %d, row_mit= %d\n", myrank, row_dest, row_mit);
-
             // invio e ricezione del blocco A
             MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             col_dest = getRankColDest(myrank, nblock);
             col_mit = getRankColMit(myrank, nblock);
-
-            printf("Myrank is %d. col_dest= %d, col_mit= %d\n", myrank, col_dest, col_mit);
 
             // invio e ricezione del blocco B
             MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -265,6 +261,7 @@ int main(int argc, char** argv) {
 
     if (myrank == 4) {
         offset = 0;
+        double **C_swap = matrix_creator(N, N);
 
         for (i = 0; i < nblock; i++) {
             MPI_Recv(C[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -272,6 +269,27 @@ int main(int argc, char** argv) {
             offset += stripSize;
         }
 
+        offset = N / sqrt(nblock);
+
+        double **Cblock = matrix_creator(offset, offset);
+        double *tempC;
+        int x, y;
+        l = 0;
+        for (i = 0; i < N; i += offset)
+            for (j = 0; j < N; j += offset) {
+
+                /**/
+                for (x = i; x < offset + i; x++)
+                    for (y = j; y < offset + j; y++) {
+                        Cblock[x - i][y - j] = A[x][y];
+                    }
+                /*printmatrix(offset,offset,Ablock);*/
+
+                /*vectorize the two pieces of matrices in order to send them*/
+                tempC = matrix_vectorizer(offset, offset, Ablock);
+                C[l] = tempC;
+                /*printvector(offset*offset,tempA);*/
+            }
         printf("Myrank is %d. Print C.\n", myrank);
         printmatrix(N, N, C);
     }
