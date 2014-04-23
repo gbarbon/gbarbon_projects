@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
+    int nblock, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     MPI_Init(&argc, &argv);
@@ -211,7 +211,6 @@ int main(int argc, char** argv) {
     N = atoi(argv[1]);
     nblock = numnodes - 1;
 
-    stripSize = N / nblock;
     dim = N / sqrt(nblock);
 
     // allocate A, B, and C --- note that you want these to be
@@ -257,13 +256,9 @@ int main(int argc, char** argv) {
         printmatrix(nblock, numElements, Bblock);
 
         // send
-        offset = 0;
-
         for (i = 0; i < nblock; i++) {
-            MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-            MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
-
-            offset++;
+            MPI_Send(Ablock[i], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
+            MPI_Send(Bblock[i], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
         }
 
         printf("MASTER. Pieces of A and B sent.\n");
