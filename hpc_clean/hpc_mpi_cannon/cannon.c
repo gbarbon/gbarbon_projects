@@ -39,7 +39,7 @@ void skewing_column(double ** M, int n) {
     k = 1;
     //for (i = 1; i < n - 1; i = i + sqrt(n)) {
     for (i = 1; i < sqrt(n); i++) {
-        if (i % sqrt(n) != 0) {
+        if (i % (int) sqrt(n) != 0) {
             for (j = 0; j < sqrt(n); j++) {
                 index = (j + k) % (int) sqrt(n);
                 M[i + (int) sqrt(n) * j] = c_swap[i + (int) sqrt(n) * index];
