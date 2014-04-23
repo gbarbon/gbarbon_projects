@@ -279,7 +279,8 @@ int main(int argc, char** argv) {
 
         printf("Myrank is %d. Pieces of A and B received.\n", myrank);
 
-        lato_b = N / ((int) sqrt(nblock));
+        //lato_b = N / ((int) sqrt(nblock));
+        lato_b = dim;
         C = matrix_creator(lato_b, lato_b);
 
         // initialize C
@@ -321,7 +322,7 @@ int main(int argc, char** argv) {
         for (i = 0; i < nblock; i++) {
             MPI_Recv(tempC[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            offset ++;
+            offset++;
         }
 
         double *C_vett = matrix_vectorizer(N, N, tempC);
