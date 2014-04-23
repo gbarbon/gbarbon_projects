@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
 
         // skewing        
         skewing_row(Ablock, nblock);
-        skewing_column(Bblock, nblock);
+        skewing_column(Bblock, N);
 
         printmatrix(nblock, numElements, Ablock);
         printmatrix(nblock, numElements, Bblock);
