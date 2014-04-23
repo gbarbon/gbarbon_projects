@@ -317,7 +317,7 @@ int main(int argc, char** argv) {
     if (myrank == 4) {
         offset = 0;
 
-        double **tempC = matrix_creator(N, N);
+        double **tempC = matrix_creator(nblock, numElements);
 
         for (i = 0; i < nblock; i++) {
             MPI_Recv(tempC[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
             offset++;
         }
 
-        double *C_vett = matrix_vectorizer(N, N, tempC);
+        double *C_vett = matrix_vectorizer(nblock, numElements, tempC);
 
         block_matrix(C, C_vett, nblock, N);
 
