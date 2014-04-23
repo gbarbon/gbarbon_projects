@@ -180,8 +180,8 @@ int main(int argc, char *argv[]) {
     //    printvector(csize * N, cbuf);
 
 
-//    AAblock = devectorizer(rsize, N, rbuf);
-//    BBblock = devectorizer(N, csize, cbuf);
+    //    AAblock = devectorizer(rsize, N, rbuf);
+    //    BBblock = devectorizer(N, csize, cbuf);
 
     //test nuovo devettorizzatore
     double ** BBtest = matrix_creator(N, csize);
@@ -191,12 +191,12 @@ int main(int argc, char *argv[]) {
             BBtest[i][j] = cbuf[x];
             x++;
         }
-//    printf("Vecotr cbuf:\n");
-//    printvector(csize * N, cbuf);
-//    printf("BBblock\n");
-//    printmatrix(N, csize, BBblock);
-//    printf("\nBBtest\n");
-//    printmatrix(N, csize, BBtest);
+    //    printf("Vecotr cbuf:\n");
+    //    printvector(csize * N, cbuf);
+    //    printf("BBblock\n");
+    //    printmatrix(N, csize, BBblock);
+    //    printf("\nBBtest\n");
+    //    printmatrix(N, csize, BBtest);
     double ** AAtest = matrix_creator(rsize, N);
     x = 0;
     for (k = 0; k < N; k += dim)
@@ -206,28 +206,28 @@ int main(int argc, char *argv[]) {
                 x++;
             }
 
-//    printf("Vecotr rbuf:\n");
-//    printvector(rsize * N, rbuf);
-//    printf("AAblock\n");
-//    printmatrix(rsize, N,AAblock);
-//    printf("\nAAtest\n");
-//    printmatrix(rsize, N, AAtest);
+    //    printf("Vecotr rbuf:\n");
+    //    printvector(rsize * N, rbuf);
+    //    printf("AAblock\n");
+    //    printmatrix(rsize, N,AAblock);
+    //    printf("\nAAtest\n");
+    //    printmatrix(rsize, N, AAtest);
 
     int l, m;
-//    for (i = 0; i < dim; i++) {
-//        m = 0;
-        for (l = 0; l < dim; l++) {
-            for (j = 0; j < dim; j++) {
-                Cblock[l][j] = 0.0;
-                for (k = 0; k < N; k++) {
-                    Cblock[l][j] += AAtest[l][k] * BBtest[k][j];
-                }
-                //m++;
+    //    for (i = 0; i < dim; i++) {
+    //        m = 0;
+    for (l = 0; l < dim; l++) {
+        for (j = 0; j < dim; j++) {
+            Cblock[l][j] = 0.0;
+            for (k = 0; k < N; k++) {
+                Cblock[l][j] += AAtest[l][k] * BBtest[k][j];
             }
+            //m++;
         }
+    }
     //}
 
-    double * cvector = matrix_vectorizer(dim,dim,Cblock);
+    double * cvector = matrix_vectorizer(dim, dim, Cblock);
     /* master receives from workers  -- note could be done via MPI_Gather */
     double *Carray;
 
@@ -242,7 +242,26 @@ int main(int argc, char *argv[]) {
     if (myrank == 0) {
         /* trasform Carray into matrix C */
         /*MAY NOT BE CORRECT*/
-        C = devectorizer(N, N, Carray);
+        //C = devectorizer(N, N, Carray);
+
+        int r;
+        for (r = 0; r < N * N; r++)
+            printf("%f ,", Carray[r]);
+        printf("\n\n");
+
+        double ** C = matrix_creator(N, N);
+        int i, j, x, y, el = 0;
+        /*base point (in final matrix) scrolling*/
+        /*i.e. 0,0 - 0,2 - 2,0 - 2,2 with N=4 and nproc=4 */
+        for (i = 0; i < N; i += dim)
+            for (j = 0; j < N; j += dim)
+                /*block scorlling, dim: block dimension*/
+                for (x = i; x < dim + i; x++)
+                    for (y = j; y < dim + j; y++) {
+                        printf("x: %d, y: %d, el: %f\n", x,y,Carray[el]);
+                        C[x][y] = Carray[el];
+                        el++;
+                    }
 
         /*stopwatch stop*/
         StopwatchStop(watch);
