@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
 
         C = matrix_creator(N, N);
 
-        printf("Myrank is %d. A,B,C allocated\n", myrank);
+        printf("MASTER. A,B,C allocated\n");
 
         // initialize A and B
         simple_matrix_init(A, N);
@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
             offset += stripSize;
         }
 
-        printf("Myrank is %d. Pieces of A and B sent.\n", myrank);
+        printf("MASTER. Pieces of A and B sent.\n");
 
     } else {
         // receive my part of A and B
@@ -261,37 +261,32 @@ int main(int argc, char** argv) {
 
     if (myrank == 4) {
         offset = 0;
-        double **C_swap = matrix_creator(N, N);
+
+        double **tempC = matrix_creator(N, N);
 
         for (i = 0; i < nblock; i++) {
-            MPI_Recv(C_swap[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(tempC[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             offset += stripSize;
         }
 
-        offset = N / sqrt(nblock);
+        double *C_vett = matrix_vectorizer(N, N, tempC);
 
-        double **Cblock = matrix_creator(offset, offset);
-        double *tempC;
-        int x, y;
-        l = 0;
-        for (i = 0; i < N; i += offset)
-            for (j = 0; j < N; j += offset) {
+        int i, j, x, y, el = 0, dim = N / sqrt(nblock);
 
-                /**/
-                for (x = i; x < offset + i; x++)
-                    for (y = j; y < offset + j; y++) {
-                        Cblock[x - i][y - j] = C_swap[x][y];
+        /*base point (in final matrix) scrolling*/
+        /*i.e. 0,0 - 0,2 - 2,0 - 2,2 with N=4 and nproc=4 */
+        for (i = 0; i < N; i += dim)
+            for (j = 0; j < N; j += dim)
+                /*block scrolling, dim: block dimension*/
+                for (x = i; x < dim + i; x++)
+                    for (y = j; y < dim + j; y++) {
+                        //printf("x: %d, y: %d, el: %f\n", x, y, C_vett[el]);
+                        C[x][y] = C_vett[el];
+                        el++;
                     }
-                /*printmatrix(offset,offset,Ablock);*/
 
-                /*vectorize the two pieces of matrices in order to send them*/
-                tempC = matrix_vectorizer(offset, offset, Cblock);
-                C[l] = tempC;
-                l++;
-                /*printvector(offset*offset,tempA);*/
-            }
-        printf("Myrank is %d. Print C.\n", myrank);
+        printf("MASTER. Print C.\n");
         printmatrix(N, N, C);
     }
 
