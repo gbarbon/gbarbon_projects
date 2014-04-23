@@ -48,7 +48,7 @@ void skewing_column(double ** M, int n) {
     //freematrix(n, c_swap);
 }
 
-double ** matrix_block(double ** matrix, int block, int n) {
+/*double ** matrix_block(double ** matrix, int block, int n) {
     double *tmpM, **Mblock;
     int i, j, r, c, k;
 
@@ -70,6 +70,33 @@ double ** matrix_block(double ** matrix, int block, int n) {
     for (i = 0; i < n; i++) {
         Mblock[i] = &tmpM[i * n];
     }
+
+    return Mblock;
+}*/
+
+double ** matrix_block(double** matrix, int n, int nblock) {
+    int i, j, k, x, y, offset = n / sqrt(nblock);
+    double * tempM, **block, ** Mblock;
+
+    block = matrix_creator(offset, offset);
+    Mblock = matrix_creator(nblock, (offset * offset));
+
+    k = 0;
+    for (i = 0; i < n; i += offset)
+        for (j = 0; j < n; j += offset) {
+
+            for (x = i; x < offset + i; x++)
+                for (y = j; y < offset + j; y++) {
+                    block[x - i][y - j] = matrix[x][y];
+                }
+
+            /*vectorize the two pieces of matrices*/
+            tempM = matrix_vectorizer(offset, offset, block);
+            Mblock[k] = tempM;
+            k++;
+
+            free(tempM);
+        }
 
     return Mblock;
 }
@@ -207,11 +234,14 @@ int main(int argc, char** argv) {
         zero_matrix_init(C, N, N);
 
         // suddivisione in blocchi della matrice
-        Ablock = (double **) malloc(sizeof (double *) * N);
+        /*Ablock = (double **) malloc(sizeof (double *) * N);
         Bblock = (double **) malloc(sizeof (double *) * N);
 
         Ablock = matrix_block(A, nblock, N);
-        Bblock = matrix_block(B, nblock, N);
+        Bblock = matrix_block(B, nblock, N);*/
+
+        Ablock = matrix_block(A, N, nblock);
+        Bblock = matrix_block(B, N, nblock);
 
         printmatrix(N, N, Ablock);
         printmatrix(N, N, Bblock);
