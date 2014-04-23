@@ -80,10 +80,8 @@ void master_sender(double** A, double** B, int offset, int n) {
 }
 
 int main(int argc, char *argv[]) {
-    //    double **A, **B, **C, **Ablock, **Bblock, **Cblock;
     int numElements, stripSize, myrank, numnodes, N, i, j, k, x;
     double **A, **B, **C, *Ablock, *Bblock, **Cblock;
-
 
     /*stopwatch*/
     Stopwatch watch = StopwatchCreate();
@@ -98,8 +96,6 @@ int main(int argc, char *argv[]) {
     int* coo;
 
     N = atoi(argv[1]);
-    stripSize = N / numnodes;
-    //    numElements = stripSize * N;
     /* number of elements for each process*/
     numElements = (N * N) / numnodes;
     //there we may also calculate "lateral" dimension of block:
@@ -118,27 +114,13 @@ int main(int argc, char *argv[]) {
         simple_matrix_init(A, N);
         simple_matrix_init(B, N);
         matrix_transposer(N, B); /* transpose B */
-        printf("Matrix A:\n");
-        printmatrix(N, N, A);
-        printf("\n\nMatrix B:\n");
-        printmatrix(N, N, B);
         printf("\n\n");
 
         master_sender(A, B, dim, N);
     }
 
-    //    Ablock = matrix_creator(stripSize, N);
-    //    Bblock = matrix_creator(stripSize, N);
-    //    Cblock = matrix_creator(stripSize, N);
-    //
-    //    /*receive my part of A and B*/
-    //    MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    //    MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    //    printmatrix(stripSize, N, Ablock);
-
-    Ablock = (double *) malloc(N * sizeof (double));
-    Bblock = (double *) malloc(N * sizeof (double));
-    //Cblock = (double *) malloc(N * sizeof (double));
+    Ablock = (double *) malloc(numElements * sizeof (double));
+    Bblock = (double *) malloc(numElements * sizeof (double));
     Cblock = matrix_creator(dim, dim);
 
     /*receive my part of A and B*/
@@ -147,57 +129,34 @@ int main(int argc, char *argv[]) {
 
     /* coords computation */
     coo = coordinate(myrank, numnodes);
-    /*printf("My rank is: %d. My coords are: %d, %d\n", myrank, coo[0], coo[1]);*/
-
+    
     /*communicators creation in order to split blocks that will be used in multiplication*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
-
+    
+    /*rsize is the number of square blocks in a row block*/
+    /*csize is the number of square blocks in a column block*/
     int rsize, csize;
     MPI_Comm_size(MyComm_row, &rsize);
     MPI_Comm_size(MyComm_col, &csize);
 
-    double *rbuf = (double *) malloc(rsize * N * sizeof (double));
-    double *cbuf = (double *) malloc(csize * N * sizeof (double));
-
-    //    MPI_Barrier(MPI_COMM_WORLD);
+    /*rsize times numElements is the number of elemnts of a row block*/
+    double *rbuf = (double *) malloc(rsize * numElements * sizeof (double));
+    double *cbuf = (double *) malloc(csize * numElements * sizeof (double));
 
     MPI_Allgather(Ablock, numElements, MPI_DOUBLE, rbuf, numElements, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock, numElements, MPI_DOUBLE, cbuf, numElements, MPI_DOUBLE, MyComm_col);
-
+    
     /* restore matrix version */
-    /*MAY NOT BE CORRECT*/
-    double **AAblock, **BBblock;
-
-
-    //    printf("\n\n *** Rsize = %d, csize = %d, mult = %d\n", rsize, csize, rsize * N);
-    //    printf("NumElements is: %d\n\n", numElements);
-    //    printf("Vecotr Ablock:\n");
-    //    printvector(N, Ablock);
-    //    printf("Vecotr rbuf:\n");
-    //    printvector(rsize * N, rbuf);
-    //    printf("Vecotr cbuf:\n");
-    //    printvector(csize * N, cbuf);
-
-
-    //    AAblock = devectorizer(rsize, N, rbuf);
-    //    BBblock = devectorizer(N, csize, cbuf);
-
-    //test nuovo devettorizzatore
-    double ** BBtest = matrix_creator(N, csize);
+    double ** BBtest = matrix_creator(N, dim);
     x = 0;
     for (i = 0; i < N; i++)
         for (j = 0; j < dim; j++) {
             BBtest[i][j] = cbuf[x];
             x++;
         }
-    //    printf("Vecotr cbuf:\n");
-    //    printvector(csize * N, cbuf);
-    //    printf("BBblock\n");
-    //    printmatrix(N, csize, BBblock);
-    //    printf("\nBBtest\n");
-    //    printmatrix(N, csize, BBtest);
-    double ** AAtest = matrix_creator(rsize, N);
+
+    double ** AAtest = matrix_creator(dim, N);
     x = 0;
     for (k = 0; k < N; k += dim)
         for (i = 0; i < dim; i++)
@@ -206,28 +165,17 @@ int main(int argc, char *argv[]) {
                 x++;
             }
 
-    //    printf("Vecotr rbuf:\n");
-    //    printvector(rsize * N, rbuf);
-    //    printf("AAblock\n");
-    //    printmatrix(rsize, N,AAblock);
-    //    printf("\nAAtest\n");
-    //    printmatrix(rsize, N, AAtest);
-
     int l, m;
-    //    for (i = 0; i < dim; i++) {
-    //        m = 0;
-    for (l = 0; l < dim; l++) {
+    for (l = 0; l < dim; l++)
         for (j = 0; j < dim; j++) {
             Cblock[l][j] = 0.0;
             for (k = 0; k < N; k++) {
                 Cblock[l][j] += AAtest[l][k] * BBtest[k][j];
             }
-            //m++;
         }
-    }
-    //}
 
     double * cvector = matrix_vectorizer(dim, dim, Cblock);
+
     /* master receives from workers  -- note could be done via MPI_Gather */
     double *Carray;
 
@@ -241,13 +189,6 @@ int main(int argc, char *argv[]) {
 
     if (myrank == 0) {
         /* trasform Carray into matrix C */
-        /*MAY NOT BE CORRECT*/
-        //C = devectorizer(N, N, Carray);
-
-        int r;
-        for (r = 0; r < N * N; r++)
-            printf("%f ,", Carray[r]);
-        printf("\n\n");
 
         double ** C = matrix_creator(N, N);
         int i, j, x, y, el = 0;
@@ -258,7 +199,6 @@ int main(int argc, char *argv[]) {
                 /*block scorlling, dim: block dimension*/
                 for (x = i; x < dim + i; x++)
                     for (y = j; y < dim + j; y++) {
-                        printf("x: %d, y: %d, el: %f\n", x,y,Carray[el]);
                         C[x][y] = Carray[el];
                         el++;
                     }
@@ -281,7 +221,7 @@ int main(int argc, char *argv[]) {
     free(Bblock);
     freematrix(N / numnodes, Cblock);
     free(coo);
-    freematrix(rsize, AAtest);
+    freematrix(dim, AAtest);
     freematrix(N, BBtest);
     free(rbuf);
     free(cbuf);
