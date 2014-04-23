@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
         Ablock = matrix_block(A, N, nblock);
         Bblock = matrix_block(B, N, nblock);
         
-        offset = N / sqrt(nblock)
+        offset = N / sqrt(nblock);
 
         printmatrix(nblock, offset*offset, Ablock);
         printmatrix(N, N, Bblock);
