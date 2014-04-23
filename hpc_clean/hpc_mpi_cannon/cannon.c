@@ -263,7 +263,7 @@ int main(int argc, char** argv) {
             MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
             MPI_Send(Bblock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
 
-            offset += stripSize;
+            offset ++;
         }
 
         printf("MASTER. Pieces of A and B sent.\n");
