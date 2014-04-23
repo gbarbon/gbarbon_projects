@@ -95,7 +95,7 @@ double ** matrix_block(double** matrix, int n, int nblock) {
             Mblock[k] = tempM;
             k++;
 
-            free(tempM);
+            //free(tempM);
         }
 
     return Mblock;
