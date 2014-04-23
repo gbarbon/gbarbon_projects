@@ -50,32 +50,6 @@ void skewing_column(double ** M, int n) {
     //freematrix(n, c_swap);
 }
 
-/*double ** matrix_block(double ** matrix, int block, int n) {
-    double *tmpM, **Mblock;
-    int i, j, r, c, k;
-
-    tmpM = (double *) malloc(sizeof (double) * n * n);
-    Mblock = (double **) malloc(sizeof (double *) * n);
-
-    k = 0;
-    for (i = 0; i < n; i = i + n / (block / 2)) {
-        for (j = 0; j < n; j = j + n / (block / 2)) {
-            for (r = i; r < i + n / (block / 2); r++) {
-                for (c = j; c < j + n / (block / 2); c++) {
-                    tmpM[k] = matrix[r][c];
-                    k++;
-                }
-            }
-        }
-    }
-
-    for (i = 0; i < n; i++) {
-        Mblock[i] = &tmpM[i * n];
-    }
-
-    return Mblock;
-}*/
-
 double ** matrix_block(double** matrix, int n, int nblock) {
     int i, j, k, x, y, offset = n / sqrt(nblock);
     double * tempM, **block, ** Mblock;
@@ -202,7 +176,7 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int nblock, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
+    int master, nblock, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     MPI_Init(&argc, &argv);
@@ -212,13 +186,14 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
     nblock = numnodes - 1;
+    master=nblock;
 
     dim = N / sqrt(nblock);
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
 
-    if (myrank == 4) {
+    if (myrank == master) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
 
@@ -271,8 +246,8 @@ int main(int argc, char** argv) {
         Ablock = matrix_creator(1, numElements);
         Bblock = matrix_creator(1, numElements);
 
-        MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         printf("Myrank is %d. Pieces of A and B received.\n", myrank);
 
@@ -308,10 +283,10 @@ int main(int argc, char** argv) {
         }
 
         double *C_vett = matrix_vectorizer(lato_b, lato_b, C);
-        MPI_Send(C_vett, lato_b*lato_b, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD);
+        MPI_Send(C_vett, lato_b*lato_b, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
     }
 
-    if (myrank == 4) {
+    if (myrank == master) {
         offset = 0;
 
         double **tempC = matrix_creator(nblock, numElements);
