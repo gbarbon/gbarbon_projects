@@ -264,7 +264,7 @@ int main(int argc, char** argv) {
         double **C_swap = matrix_creator(N, N);
 
         for (i = 0; i < nblock; i++) {
-            MPI_Recv(C[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(C_swap[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             offset += stripSize;
         }
@@ -281,12 +281,12 @@ int main(int argc, char** argv) {
                 /**/
                 for (x = i; x < offset + i; x++)
                     for (y = j; y < offset + j; y++) {
-                        Cblock[x - i][y - j] = A[x][y];
+                        Cblock[x - i][y - j] = C_swap[x][y];
                     }
                 /*printmatrix(offset,offset,Ablock);*/
 
                 /*vectorize the two pieces of matrices in order to send them*/
-                tempC = matrix_vectorizer(offset, offset, Ablock);
+                tempC = matrix_vectorizer(offset, offset, Cblock);
                 C[l] = tempC;
                 /*printvector(offset*offset,tempA);*/
             }
