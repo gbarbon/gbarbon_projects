@@ -74,12 +74,42 @@ double ** matrix_block(double ** matrix, int block, int n) {
     return Mblock;
 }
 
+void block_matrix(double ** matrix, double* vett, int block, int n) {
+    int i, j, x, y, el = 0, dim = n / sqrt(block);
+
+    /*base point (in final matrix) scrolling*/
+    /*i.e. 0,0 - 0,2 - 2,0 - 2,2 with N=4 and nproc=4 */
+    for (i = 0; i < n; i += dim)
+        for (j = 0; j < n; j += dim)
+            /*block scrolling, dim: block dimension*/
+            for (x = i; x < dim + i; x++)
+                for (y = j; y < dim + j; y++) {
+                    //printf("x: %d, y: %d, el: %f\n", x, y, C_vett[el]);
+                    matrix[x][y] = vett[el];
+                    el++;
+                }
+}
+
 void zero_matrix_init(double** mat, int a, int b) {
     int i, j; /*matrix indexes*/
 
     for (i = 0; i < a; i++) {
         for (j = 0; j < b; j++)
             mat[i][j] = 0.0;
+    }
+}
+
+void matrix_mult(double** A, double** B, double** C, int dim) {
+    int i, j, k, l;
+
+    for (i = 0; i < dim; i++) {
+        l = 0;
+        for (j = 0; j < dim; j++) {
+            for (k = 0; k < dim; k++) {
+                C[i][j] += A[i][k] * B[l][k];
+            }
+            l++;
+        }
     }
 }
 
@@ -231,15 +261,7 @@ int main(int argc, char** argv) {
             matrix_transposer(lato_b, B);
 
             // Multiplication
-            for (i = 0; i < lato_b; i++) {
-                l = 0;
-                for (j = 0; j < lato_b; j++) {
-                    for (k = 0; k < lato_b; k++) {
-                        C[i][j] += A[i][k] * B[l][k];
-                    }
-                    l++;
-                }
-            }
+            matrix_mult(A, B, C, lato_b);
 
             row_dest = getRankRowDest(myrank, nblock);
             row_mit = getRankRowMit(myrank, nblock);
@@ -272,19 +294,7 @@ int main(int argc, char** argv) {
 
         double *C_vett = matrix_vectorizer(N, N, tempC);
 
-        int i, j, x, y, el = 0, dim = N / sqrt(nblock);
-
-        /*base point (in final matrix) scrolling*/
-        /*i.e. 0,0 - 0,2 - 2,0 - 2,2 with N=4 and nproc=4 */
-        for (i = 0; i < N; i += dim)
-            for (j = 0; j < N; j += dim)
-                /*block scrolling, dim: block dimension*/
-                for (x = i; x < dim + i; x++)
-                    for (y = j; y < dim + j; y++) {
-                        //printf("x: %d, y: %d, el: %f\n", x, y, C_vett[el]);
-                        C[x][y] = C_vett[el];
-                        el++;
-                    }
+        block_matrix(C, C_vett, nblock, N);
 
         printf("MASTER. Print C.\n");
         printmatrix(N, N, C);
