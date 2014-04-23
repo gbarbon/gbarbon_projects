@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
     nblock = numnodes - 1;
-    master=nblock;
+    master = nblock;
 
     dim = N / sqrt(nblock);
 
