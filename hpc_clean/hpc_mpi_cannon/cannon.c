@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
     int nblock, stripSize, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
-    int row_dest, row_mit, col_dest, col_mit, index, lato;
+    int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     MPI_Init(&argc, &argv);
 
@@ -212,6 +212,7 @@ int main(int argc, char** argv) {
     nblock = numnodes - 1;
 
     stripSize = N / nblock;
+    dim = N / sqrt(nblock);
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -242,22 +243,21 @@ int main(int argc, char** argv) {
 
         Ablock = matrix_block(A, N, nblock);
         Bblock = matrix_block(B, N, nblock);
-        
-        offset = N / sqrt(nblock);
 
-        printmatrix(nblock, offset*offset, Ablock);
-        printmatrix(N, N, Bblock);
+        numElements = dim*dim;
+
+        printmatrix(nblock, numElements, Ablock);
+        printmatrix(nblock, numElements, Bblock);
 
         // skewing        
-        skewing_row(Ablock, N);
-        skewing_column(Bblock, N);
+        skewing_row(Ablock, nblock);
+        skewing_column(Bblock, nblock);
 
-        printmatrix(N, N, Ablock);
-        printmatrix(N, N, Bblock);
+        printmatrix(nblock, numElements, Ablock);
+        printmatrix(nblock, numElements, Bblock);
 
         // send
         offset = 0;
-        numElements = stripSize * N;
 
         for (i = 0; i < nblock; i++) {
             MPI_Send(Ablock[offset], numElements, MPI_DOUBLE, i, TAG, MPI_COMM_WORLD);
@@ -270,9 +270,9 @@ int main(int argc, char** argv) {
 
     } else {
         // receive my part of A and B
-        numElements = stripSize * N;
-        Ablock = matrix_creator(N / nblock, N);
-        Bblock = matrix_creator(N / nblock, N);
+        numElements = dim*dim;
+        Ablock = matrix_creator(1, numElements);
+        Bblock = matrix_creator(1, numElements);
 
         MPI_Recv(Ablock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         MPI_Recv(Bblock[0], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
