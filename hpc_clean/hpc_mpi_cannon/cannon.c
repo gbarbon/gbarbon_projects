@@ -266,6 +266,22 @@ int main(int argc, char** argv) {
             /*printf("Myrank is %d\n", myrank);
             printmatrix(N / nblock, N, Bblock);*/
         }
+
+        double *C_vett = matrix_vectorizer(lato_b, lato_b, C);
+        MPI_Send(C_vett, lato_b*lato_b, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD);
+    }
+
+    if (myrank == 4) {
+        offset = 0;
+
+        for (i = 0; i < nblock; i++) {
+            MPI_Recv(C[offset], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            offset += stripSize;
+        }
+        
+        printf("Myrank is %d. Print C.\n", myrank);
+        printmatrix(N, N, C);
     }
 
     MPI_Finalize();
