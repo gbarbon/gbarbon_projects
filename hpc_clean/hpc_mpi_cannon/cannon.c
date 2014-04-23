@@ -275,13 +275,13 @@ int main(int argc, char** argv) {
         offset = 0;
 
         for (i = 0; i < nblock; i++) {
-            MPI_Recv(C[offset], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            //MPI_Recv(C[offset], numElements, MPI_DOUBLE, 4, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             offset += stripSize;
         }
         
         printf("Myrank is %d. Print C.\n", myrank);
-        printmatrix(N, N, C);
+        //printmatrix(N, N, C);
     }
 
     MPI_Finalize();
