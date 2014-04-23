@@ -288,6 +288,7 @@ int main(int argc, char** argv) {
                 /*vectorize the two pieces of matrices in order to send them*/
                 tempC = matrix_vectorizer(offset, offset, Cblock);
                 C[l] = tempC;
+                l++;
                 /*printvector(offset*offset,tempA);*/
             }
         printf("Myrank is %d. Print C.\n", myrank);
