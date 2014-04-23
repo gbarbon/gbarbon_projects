@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int master, nblock, numElements, lato_b, offset, myrank, numnodes, N, i, j, k, l;
+    int master, nblock, numElements, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     MPI_Init(&argc, &argv);
@@ -251,22 +251,20 @@ int main(int argc, char** argv) {
 
         printf("Myrank is %d. Pieces of A and B received.\n", myrank);
 
-        //lato_b = N / ((int) sqrt(nblock));
-        lato_b = dim;
-        C = matrix_creator(lato_b, lato_b);
+        C = matrix_creator(dim, dim);
 
         // initialize C
-        zero_matrix_init(C, lato_b, lato_b);
+        zero_matrix_init(C, dim, dim);
 
         lato = (int) sqrt(nblock);
 
         for (index = 0; index < lato; index++) {
-            A = devectorizer(lato_b, lato_b, Ablock[0]);
-            B = devectorizer(lato_b, lato_b, Bblock[0]);
-            matrix_transposer(lato_b, B);
+            A = devectorizer(dim, dim, Ablock[0]);
+            B = devectorizer(dim, dim, Bblock[0]);
+            matrix_transposer(dim, B);
 
             // Multiplication
-            matrix_mult(A, B, C, lato_b);
+            matrix_mult(A, B, C, dim);
 
             row_dest = getRankRowDest(myrank, nblock);
             row_mit = getRankRowMit(myrank, nblock);
@@ -282,8 +280,8 @@ int main(int argc, char** argv) {
 
         }
 
-        double *C_vett = matrix_vectorizer(lato_b, lato_b, C);
-        MPI_Send(C_vett, lato_b*lato_b, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
+        double *C_vett = matrix_vectorizer(dim, dim, C);
+        MPI_Send(C_vett, numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
     }
 
     if (myrank == master) {
