@@ -95,9 +95,11 @@ int matrix_writer(int dim, double ** mat, char* output_file) {
     for (i = 0; i < dim; i++)
         for (j = 0; j < dim; j++) {
             if (j < dim - 1) {
-                snprintf(buf, sizeof buf , "%f%s", mat[i][j], ",");
+//                snprintf(buf, sizeof buf , "%f%s", mat[i][j], ",");
+                snprintf(buf, sizeof buf , "%f,", mat[i][j]);
             } else {
-                snprintf(buf, sizeof buf , "%f%s", mat[i][j], "\n");
+//                snprintf(buf, sizeof buf , "%f%s", mat[i][j], "\n");
+                snprintf(buf, sizeof buf , "%f\n", mat[i][j]);
             }
             fputs(buf, outf);
         }
