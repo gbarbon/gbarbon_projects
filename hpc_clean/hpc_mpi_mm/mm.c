@@ -135,14 +135,14 @@ int main(int argc, char *argv[]) {
     MPI_Recv(Bblock, numElements, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     printf("Recv fatte\n");
-    
+
     /* coords computation */
     coo = coordinate(myrank, numnodes);
 
     /*communicators creation in order to split blocks that will be used in multiplication*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
-    
+
     printf("Split fatto\n");
 
     /*rsize is the number of square blocks in a row block*/
@@ -150,18 +150,20 @@ int main(int argc, char *argv[]) {
     int rsize, csize;
     MPI_Comm_size(MyComm_row, &rsize);
     MPI_Comm_size(MyComm_col, &csize);
-    
+
     printf("Comm_size fatta\n");
 
     /*rsize times numElements is the number of elements of a row block*/
     double *rbuf = (double *) malloc(rsize * numElements * sizeof (double));
     double *cbuf = (double *) malloc(csize * numElements * sizeof (double));
 
+    printf("rubuf= %d\n", rsize * numElements);
+
     MPI_Allgather(Ablock, numElements, MPI_DOUBLE, rbuf, numElements, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock, numElements, MPI_DOUBLE, cbuf, numElements, MPI_DOUBLE, MyComm_col);
 
     printf("AllGather fatta\n");
-    
+
     /* restore matrix version */
     double ** BBtest = matrix_creator(N, dim);
     x = 0;
@@ -203,7 +205,7 @@ int main(int argc, char *argv[]) {
     MPI_Gather(cvector, numElements, MPI_DOUBLE, Carray, numElements, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     printf("Fino a Gather OK\n");
-    
+
     if (myrank == 0) {
         /* trasform Carray into matrix C */
 
