@@ -1,6 +1,6 @@
 /* 
  * File:   matcreator.c
- * Author: 
+ * Author: maomao
  *
  * Created on 29 aprile 2014, 17.35
  */
