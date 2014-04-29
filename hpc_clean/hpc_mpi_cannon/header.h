@@ -90,13 +90,15 @@ void freematrix(int n, double** mat) {
  * @param C     Pointer to a axb matrix
  */
 void printmatrix(int a, int b, double** C) {
-    int i, j;
-    for (i = 0; i < a; i++) {
-        for (j = 0; j < b; j++)
-            printf("%f ", C[i][j]);
+    if (a <= 10 && b <= 10) {
+        int i, j;
+        for (i = 0; i < a; i++) {
+            for (j = 0; j < b; j++)
+                printf("%f ", C[i][j]);
+            printf("\n");
+        }
         printf("\n");
     }
-    printf("\n");
 }
 
 /**
