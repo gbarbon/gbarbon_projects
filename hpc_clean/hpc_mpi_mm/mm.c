@@ -150,8 +150,11 @@ int main(int argc, char *argv[]) {
     /*rsize is the number of square blocks in a row block*/
     /*csize is the number of square blocks in a column block*/
     int rsize, csize;
-    MPI_Comm_size(MyComm_row, &rsize);
-    MPI_Comm_size(MyComm_col, &csize);
+    //MPI_Comm_size(MyComm_row, &rsize);
+    //MPI_Comm_size(MyComm_col, &csize);
+
+    rsize = dim;
+    csize = dim;
 
     printf("Myrank %d, Comm_size fatta. rsize= %d\n", myrank, rsize);
     printf("Myrank %d, Comm_size fatta. csize= %d\n", myrank, csize);
