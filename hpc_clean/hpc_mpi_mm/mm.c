@@ -60,7 +60,7 @@ void master_sender(double** A, double** B, int offset, int n) {
             /*vectorize the two pieces of matrices in order to send them*/
             tempA = matrix_vectorizer(offset, offset, Ablock);
             tempB = matrix_vectorizer(offset, offset, Bblock);
-            printvector(offset*offset,tempA);*/
+            printvector(offset*offset,tempA);
 
             /*MPI send of rows and cols. Notice tag 0 for rows, tag 1 for cols*/
             MPI_Send(tempA, offset * offset, MPI_DOUBLE, worker, 0, MPI_COMM_WORLD);
