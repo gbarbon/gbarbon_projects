@@ -6,12 +6,12 @@
  */
 
 #include "header.h"
+#include "MpiStopwatch.h"
 #define TAG 13
 
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmp, *rigaA, *ris, *Bvett;
-    double startTime, endTime;
     int recv, indexR, index, myrank, numnodes, N, i, j, k, r, c;
 
     MPI_Init(&argc, &argv);
@@ -21,12 +21,18 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
 
+    /*stopwatch*/
+    Stopwatch watch = StopwatchCreate();
+
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
 
     if (myrank == 0) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
+
+	/*start timer*/
+        StopwatchStart(watch);
 
         A = matrix_creator(N, N);
 
@@ -65,9 +71,6 @@ int main(int argc, char** argv) {
     }
 
     if (myrank == 0) {
-
-        // start timer
-        startTime = MPI_Wtime();
 
         // invio di una riga di A ad ogni nodo slave
         for (i = 0; i < numnodes - 1; i++) {
@@ -134,10 +137,9 @@ int main(int argc, char** argv) {
             }
         }
 
-        // stop timer
-        endTime = MPI_Wtime();
-        printf("Time is %f\n", endTime - startTime);
-
+	/*stopwatch stop*/
+        StopwatchStop(watch);
+        StopwatchPrintWithComment("Master total time: %f\n\n", watch);
 
         if (recv == N) {
             printmatrix(N, N, C);
