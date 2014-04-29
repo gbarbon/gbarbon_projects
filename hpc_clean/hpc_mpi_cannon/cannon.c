@@ -6,6 +6,7 @@
  */
 
 #include "header.h"
+#include "MpiStopwatch.h"
 #define TAG 13
 
 void skewing_row(double ** M, int n) {
@@ -179,6 +180,9 @@ int main(int argc, char** argv) {
     int master, nblock, numElements, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
+    /*stopwatch*/
+    Stopwatch watch = StopwatchCreate();
+
     MPI_Init(&argc, &argv);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -196,6 +200,9 @@ int main(int argc, char** argv) {
     if (myrank == master) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
+
+	/*start timer*/
+        StopwatchStart(watch);
 
         A = matrix_creator(N, N);
 
@@ -298,6 +305,10 @@ int main(int argc, char** argv) {
         double *C_vett = matrix_vectorizer(nblock, numElements, tempC);
 
         block_matrix(C, C_vett, nblock, N);
+
+	/*stopwatch stop*/
+        StopwatchStop(watch);
+        StopwatchPrintWithComment("Master total time: %f\n\n", watch);
 
         printf("MASTER. Print C.\n");
         printmatrix(N, N, C);
