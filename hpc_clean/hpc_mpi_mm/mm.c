@@ -144,7 +144,8 @@ int main(int argc, char *argv[]) {
     /*communicators creation in order to split blocks that will be used in multiplication*/
     //MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, myrank, coo[0], &MyComm_row);
-    MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
+    //MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
+    MPI_Comm_split(MPI_COMM_WORLD, myrank, coo[1], &MyComm_col);
 
     printf("Split fatto\n");
 
