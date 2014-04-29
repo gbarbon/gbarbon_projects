@@ -153,8 +153,8 @@ int main(int argc, char *argv[]) {
     //MPI_Comm_size(MyComm_row, &rsize);
     //MPI_Comm_size(MyComm_col, &csize);
 
-    rsize = dim;
-    csize = dim;
+    rsize = sqrt(numnodes);
+    csize = sqrt(numnodes);
 
     printf("Myrank %d, Comm_size fatta. rsize= %d\n", myrank, rsize);
     printf("Myrank %d, Comm_size fatta. csize= %d\n", myrank, csize);
