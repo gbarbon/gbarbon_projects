@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     /* coords computation */
     coo = coordinate(myrank, numnodes);
 
-    printf("coo[1]: %d coo[2]: %d\n", coo[0], coo[1]);
+    printf("coo[0]: %d coo[1]: %d\n", coo[0], coo[1]);
 
     /*communicators creation in order to split blocks that will be used in multiplication*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
@@ -154,6 +154,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MyComm_col, &csize);
 
     printf("Myrank %d, Comm_size fatta. rsize= %d\n", myrank, rsize);
+    printf("Myrank %d, Comm_size fatta. csize= %d\n", myrank, csize);
 
     /*rsize times numElements is the number of elements of a row block*/
     double *rbuf = (double *) malloc(rsize * numElements * sizeof (double));
