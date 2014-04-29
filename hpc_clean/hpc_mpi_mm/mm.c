@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MyComm_row, &rsize);
     MPI_Comm_size(MyComm_col, &csize);
 
-    printf("Comm_size fatta\n");
+    printf("Comm_size fatta. rsize= %d\n", rsize);
 
     /*rsize times numElements is the number of elements of a row block*/
     double *rbuf = (double *) malloc(rsize * numElements * sizeof (double));
