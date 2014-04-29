@@ -63,13 +63,13 @@ void master_sender(double** A, double** B, int offset, int n) {
             //printvector(offset*offset,tempA);
 
             printf("Worker:%d\n", worker);
-            
+
             /*MPI send of rows and cols. Notice tag 0 for rows, tag 1 for cols*/
             MPI_Send(tempA, offset * offset, MPI_DOUBLE, worker, 0, MPI_COMM_WORLD);
             MPI_Send(tempB, offset * offset, MPI_DOUBLE, worker, 1, MPI_COMM_WORLD);
 
             printf("Worker:%d\n", worker);
-            
+
             free(tempA);
             free(tempB);
             worker++; /*increment worker number*/
@@ -100,10 +100,13 @@ int main(int argc, char *argv[]) {
     int* coo;
 
     N = atoi(argv[1]);
-    /* number of elements for each process*/
-    numElements = (N * N) / numnodes;
+
     //there we may also calculate "lateral" dimension of block:
     int dim = N / sqrt(numnodes);
+
+    /* number of elements for each process*/
+    //numElements = (N * N) / numnodes;
+    numElements = dim*dim;
 
     if (myrank == 0) {
         /*start timer*/
@@ -133,11 +136,11 @@ int main(int argc, char *argv[]) {
 
     /* coords computation */
     coo = coordinate(myrank, numnodes);
-    
+
     /*communicators creation in order to split blocks that will be used in multiplication*/
     MPI_Comm_split(MPI_COMM_WORLD, coo[0], myrank, &MyComm_row);
     MPI_Comm_split(MPI_COMM_WORLD, coo[1], myrank, &MyComm_col);
-    
+
     /*rsize is the number of square blocks in a row block*/
     /*csize is the number of square blocks in a column block*/
     int rsize, csize;
@@ -150,7 +153,7 @@ int main(int argc, char *argv[]) {
 
     MPI_Allgather(Ablock, numElements, MPI_DOUBLE, rbuf, numElements, MPI_DOUBLE, MyComm_row);
     MPI_Allgather(Bblock, numElements, MPI_DOUBLE, cbuf, numElements, MPI_DOUBLE, MyComm_col);
-    
+
     /* restore matrix version */
     double ** BBtest = matrix_creator(N, dim);
     x = 0;
