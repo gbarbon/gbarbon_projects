@@ -9,6 +9,7 @@
 /* include header files */
 #include "header.h"
 #include "MpiStopwatch.h"
+#include "inout.h"
 
 /**
  * Computes multiplication
@@ -152,6 +153,13 @@ int main(int argc, char *argv[]) {
     mb = sqrt(numnodes - 1);
     offset = n / mb;
 
+    /*I\O*/
+    int inout_bool = atoi(argv[2]);
+
+    /*CSV file support*/
+    char *op = "mmfast", final[256];
+    int myid;
+
     /*show who I am*/
     /*printf("I'm process %d\n", myrank);*/
 
@@ -163,13 +171,30 @@ int main(int argc, char *argv[]) {
         /*stopwatch start*/
         StopwatchStart(watch);
 
-        /* matrix creation */
-        A = matrix_creator(n, n);
-        B = matrix_creator(n, n);
+        /*input type evaluation*/
+        if (inout_bool == 0) { /*no input, so randomly generated matrix*/
 
-        /*init matrices with random values*/
-        simple_matrix_init(A, n);
-        simple_matrix_init(B, n);
+            /* matrix creation */
+            A = matrix_creator(n, n);
+            B = matrix_creator(n, n);
+
+            /*init matrices with random values*/
+            simple_matrix_init(A, n);
+            simple_matrix_init(B, n);
+
+        } else if (inout_bool == 1) {
+            /*input filename generation*/
+            char infile[100];
+            snprintf(infile, sizeof infile, "mat%d.csv", n);
+
+            /* matrix loading */
+            A = matrix_loader(infile);
+            B = matrix_loader(infile);
+        } else {
+            printf("Error on input output value!!!\n");
+            return 0;
+        }
+
 
         /*transpose B for simplicity*/
         matrix_transposer(n, B);
@@ -182,7 +207,7 @@ int main(int argc, char *argv[]) {
     } else {
         /*stopwatch start*/
         StopwatchStart(watch);
-        
+
         /*data structure for incoming rows & cols*/
         double** rows;
         double** cols;
@@ -215,7 +240,7 @@ int main(int argc, char *argv[]) {
         MPI_Send(res_vect, offset * offset, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD);
         freematrix(offset, res);
         free(res_vect);
-        
+
         /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Worker total time: %f\n", watch);
@@ -229,8 +254,13 @@ int main(int argc, char *argv[]) {
         double** res;
         res = master_receiver(n, offset);
 
-        /*print final matrix and free memory of matrices A, B and res*/
-        /*printmatrix(n, n, res);*/
+        /*output type evaluation*/
+        if (inout_bool == 0) { /*no output, so no result (or print)*/
+            /*printmatrix(n, n, res);*/
+        } else {
+            matrix_writer(n, res, "outmatrix.csv");
+        }
+        /*free memory of matrices A, B and res*/
         freematrix(n, A);
         freematrix(n, B);
         freematrix(n, res);
@@ -238,6 +268,9 @@ int main(int argc, char *argv[]) {
         /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
+        myid = (int) MPI_Wtime(); /*my id generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes, n, inout_bool); /*final string generation*/
+        StopwatchPrintToFile(final, watch);
 
     }
 
