@@ -62,6 +62,8 @@ void master_sender(double** A, double** B, int offset, int n) {
             tempB = matrix_vectorizer(offset, offset, Bblock);
             //printvector(offset*offset,tempA);
 
+            printf("Worker:%d\n", worker);
+            
             /*MPI send of rows and cols. Notice tag 0 for rows, tag 1 for cols*/
             MPI_Send(tempA, offset * offset, MPI_DOUBLE, worker, 0, MPI_COMM_WORLD);
             MPI_Send(tempB, offset * offset, MPI_DOUBLE, worker, 1, MPI_COMM_WORLD);
