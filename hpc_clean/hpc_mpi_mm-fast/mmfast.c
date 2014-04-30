@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
         } else if (inout_bool == 1) {
             /*input filename generation*/
             char infile[100];
-            snprintf(infile, sizeof infile, "mat%d.csv", n);
+            snprintf(infile, sizeof infile, "../hpc_matrices/mat%d.csv", n);
 
             /* matrix loading */
             A = matrix_loader(infile);
@@ -258,7 +258,9 @@ int main(int argc, char *argv[]) {
         if (inout_bool == 0) { /*no output, so no result (or print)*/
             /*printmatrix(n, n, res);*/
         } else {
-            matrix_writer(n, res, "outmatrix.csv");
+            char outfile[256];
+            snprintf(outfile, sizeof outfile, "../hpc_matrices/output/%s_dim%d_nproc%d.csv", op, n, numnodes-1);
+            matrix_writer(n, res, outfile);
         }
         /*free memory of matrices A, B and res*/
         freematrix(n, A);
@@ -269,7 +271,7 @@ int main(int argc, char *argv[]) {
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes, n, inout_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, n, inout_bool); /*final string generation*/
         StopwatchPrintToFile(final, watch);
 
     }

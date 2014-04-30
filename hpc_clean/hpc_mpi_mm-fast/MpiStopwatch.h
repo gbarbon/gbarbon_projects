@@ -61,7 +61,7 @@ void StopwatchPrintWithComment(const char* message, Stopwatch chrono)
 void StopwatchPrintToFile(const char* text, Stopwatch chrono) {
     char buf[256];
 
-    FILE *testfile = fopen("testfile.csv", "a");
+    FILE *testfile = fopen("../testfile.csv", "a");
     if (testfile == NULL) {
         printf("Impossible to load input files\n");
     } else {

@@ -47,7 +47,7 @@ double ** matrix_loader(char* input_file) {
 
     fclose(inputf);
     if (i != j) {
-        printf("input matrix is not sqared. Return NULL\n");
+        printf("input matrix is not sqared. Values are: i=%d, j=%d.Return NULL\n",i,j);
         return NULL;
     }
 
