@@ -61,7 +61,7 @@ double ** matrix_loader(char* input_file) {
     while ((line = fgets(buffer, sizeof (buffer), inputf)) != NULL) {
         record = strtok(line, ",");
         while (record != NULL) {
-            printf("record : %s ", record); //here you can put the record into the array as per your requirement.
+            //printf("record : %s ", record); //here you can put the record into the array as per your requirement.
             mat[i][j] = atof(record);
             //printf("Matrix %f ", mat[i][j]);
             record = strtok(NULL, ",");

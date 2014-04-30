@@ -31,10 +31,8 @@ int main(int argc, char** argv) {
     matrix_init(mat, dim);
     
     /*filename creation*/
-//    snprintf(filename, sizeof filename, "../hpc_matrices/mat%d.csv", dim);
     char * homePath = getenv ("HOME");
-    //printf("PATH: %s\n", homePath);
-    snprintf(filename, sizeof filename, "%s/hpc_input/mat%d.csv", homePath, dim);
+    snprintf(filename, sizeof filename, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, dim);
 
     /*matrix saving*/
     if (matrix_writer(dim, mat, filename) == 0) {

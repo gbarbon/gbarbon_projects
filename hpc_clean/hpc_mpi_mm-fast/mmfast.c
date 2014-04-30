@@ -155,6 +155,7 @@ int main(int argc, char *argv[]) {
 
     /*I\O*/
     int inout_bool = atoi(argv[2]);
+    char * homePath = getenv ("HOME"); /*homepath*/
 
     /*CSV file support*/
     char *op = "mmfast", final[256];
@@ -184,9 +185,9 @@ int main(int argc, char *argv[]) {
 
         } else if (inout_bool == 1) {
             /*input filename generation*/
-            char infile[100];
-            snprintf(infile, sizeof infile, "../hpc_matrices/mat%d.csv", n);
-
+            char infile[256];
+            snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, n);
+            
             /* matrix loading */
             A = matrix_loader(infile);
             B = matrix_loader(infile);
@@ -259,7 +260,7 @@ int main(int argc, char *argv[]) {
             /*printmatrix(n, n, res);*/
         } else {
             char outfile[256];
-            snprintf(outfile, sizeof outfile, "../hpc_matrices/output/%s_dim%d_nproc%d.csv", op, n, numnodes-1);
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes-1);
             matrix_writer(n, res, outfile);
         }
         /*free memory of matrices A, B and res*/
