@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     matrix_init(mat, dim);
     
     /*filename creation*/
-    snprintf(filename, sizeof filename, "mat%d.csv", dim);
+    snprintf(filename, sizeof filename, "../hpc_matrices/mat%d.csv", dim);
 
     /*matrix saving*/
     if (matrix_writer(dim, mat, filename) == 0) {
