@@ -70,8 +70,8 @@ void master_sender(double** A, double** B, int offset, int n) {
 
             printf("Worker:%d\n", worker);
 
-            free(tempA);
-            free(tempB);
+            //free(tempA);
+            //free(tempB);
             worker++; /*increment worker number*/
         }
 
