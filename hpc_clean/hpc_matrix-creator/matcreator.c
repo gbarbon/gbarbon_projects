@@ -27,6 +27,9 @@ int main(int argc, char** argv) {
         return 0;
     }
     
+    /*matrix initialization*/
+    matrix_init(mat, dim);
+    
     /*filename creation*/
     snprintf(filename, sizeof filename, "mat%d.csv", dim);
 
@@ -39,4 +42,3 @@ int main(int argc, char** argv) {
     printf("A file .csv with dimension %dx%d with name %s has successfully been created!!\n", dim, dim, filename);
     return (EXIT_SUCCESS);
 }
-
