@@ -17,13 +17,13 @@ NAME = $(dir)/hpc_mpi_cannon
 all: update base
 
 base: cannon.c 
-	$(CC) -o $(NAME) cannon.c
+	$(CC) -o $(NAME) cannon.c -lm
 
 strict: cannon.c 
-	$(CC) $(STRICT) -o $(NAME) cannon.c
+	$(CC) $(STRICT) -o $(NAME) cannon.c -lm
 
 fast_s:  cannon.c
-	$(CC) $(FAST) -o $(NAME) cannon.c
+	$(CC) $(FAST) -o $(NAME) cannon.c -lm
 
 fast: update fast_s
 

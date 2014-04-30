@@ -17,13 +17,13 @@ NAME = $(dir)/hpc_mpi_farm
 all: update base
 
 base: farm.c 
-	$(CC) -o $(NAME) farm.c
+	$(CC) -o $(NAME) farm.c -lm
 
 strict: farm.c 
-	$(CC) $(STRICT) -o $(NAME) farm.c
+	$(CC) $(STRICT) -o $(NAME) farm.c -lm
 
 fast_s:  farm.c
-	$(CC) $(FAST) -o $(NAME) farm.c
+	$(CC) $(FAST) -o $(NAME) farm.c -lm
 
 fast: update fast_s
 

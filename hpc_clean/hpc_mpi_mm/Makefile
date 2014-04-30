@@ -17,13 +17,13 @@ NAME = $(dir)/hpc_mpi_mm
 all: update base
 
 base: mm.c 
-	$(CC) -o $(NAME) mm.c
+	$(CC) -o $(NAME) mm.c -lm
 
 strict: mm.c 
-	$(CC) $(STRICT) -o $(NAME) mm.c
+	$(CC) $(STRICT) -o $(NAME) mm.c -lm
 
 fast_s:  mm.c
-	$(CC) $(FAST) -o $(NAME) mm.c
+	$(CC) $(FAST) -o $(NAME) mm.c -lm
 
 fast: update fast_s
 

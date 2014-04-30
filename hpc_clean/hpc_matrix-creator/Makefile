@@ -17,13 +17,13 @@ NAME = $(dir)/matcreator
 all: update base
 
 base: matcreator.c 
-	$(CC) -o $(NAME) matcreator.c
+	$(CC) -o $(NAME) matcreator.c -lm
 
 strict: matcreator.c 
-	$(CC) $(STRICT) -o $(NAME) matcreator.c
+	$(CC) $(STRICT) -o $(NAME) matcreator.c -lm
 
 fast_s:  matcreator.c
-	$(CC) $(FAST) -o $(NAME) matcreator.c
+	$(CC) $(FAST) -o $(NAME) matcreator.c -lm
 
 fast: update fast_s
 
