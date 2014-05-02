@@ -42,4 +42,7 @@ int main(int argc, char** argv) {
     
     printf("A file .csv with dimension %dx%d with name %s has successfully been created!!\n", dim, dim, filename);
     return (EXIT_SUCCESS);
+    
+    /*free memory*/
+    free(mat);
 }
