@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   cannon.c
  * Author: asus
  *
@@ -8,48 +8,6 @@
 #include "header.h"
 #include "MpiStopwatch.h"
 #define TAG 13
-
-void skewing_row(double ** M, int n) {
-    int i, j, k, index;
-
-    double **r_swap = (double **) malloc(sizeof (double*) * n);
-    for (i = 0; i < n; i++) {
-        r_swap[i] = M[i];
-    }
-
-    k = 1;
-    for (i = sqrt(n); i < n; i = i + sqrt(n)) {
-        for (j = 0; j < sqrt(n); j++) {
-            index = (j + k) % (int) sqrt(n);
-            M[i + j] = r_swap[i + index];
-        }
-        k++;
-    }
-
-    //freematrix(n, r_swap);
-}
-
-void skewing_column(double ** M, int n) {
-    int i, j, k, index;
-
-    double **c_swap = (double **) malloc(sizeof (double*) * n);
-    for (i = 0; i < n; i++) {
-        c_swap[i] = M[i];
-    }
-
-    k = 1;
-    for (i = 1; i < sqrt(n); i++) {
-        if (i % (int) sqrt(n) != 0) {
-            for (j = 0; j < sqrt(n); j++) {
-                index = (j + k) % (int) sqrt(n);
-                M[i + (int) sqrt(n) * j] = c_swap[i + (int) sqrt(n) * index];
-            }
-            k++;
-        }
-    }
-
-    //freematrix(n, c_swap);
-}
 
 double ** matrix_block(double** matrix, int n, int nblock) {
     int i, j, k, x, y, offset = n / sqrt(nblock);
@@ -103,13 +61,13 @@ void zero_matrix_init(double** mat, int a, int b) {
     }
 }
 
-void matrix_mult(double** A, double** B, double** C, int dim) {
+void matrix_mult(double** A, double** B, double** C, int r, int c) {
     int i, j, k, l;
 
-    for (i = 0; i < dim; i++) {
+    for (i = 0; i < r; i++) {
         l = 0;
-        for (j = 0; j < dim; j++) {
-            for (k = 0; k < dim; k++) {
+        for (j = 0; j < r; j++) {
+            for (k = 0; k < c; k++) {
                 C[i][j] += A[i][k] * B[l][k];
             }
             l++;
@@ -177,7 +135,7 @@ int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
     double startTime, endTime;
-    int master, nblock, numElements, offset, myrank, rankR, rankC, numnodes, N, i, j, k, l;
+    int master, nblock, numElements, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     /*stopwatch*/
@@ -221,9 +179,6 @@ int main(int argc, char** argv) {
         Ablock = matrix_block(A, N, nblock);
         Bblock = matrix_block(B, N, nblock);
 
-        //printmatrix(nblock, numElements, Ablock);
-        //printmatrix(nblock, numElements, Bblock);
-
         numElements = dim*dim;
 
         // send
@@ -239,8 +194,8 @@ int main(int argc, char** argv) {
         numElements = dim*dim;
         lato = (int) sqrt(nblock);
 
-        Ablock = matrix_creator(lato, numElements);
-        Bblock = matrix_creator(lato, numElements);
+        Ablock = matrix_creator(1, lato * numElements);
+        Bblock = matrix_creator(1, lato * numElements);
 
         double **Aswap = matrix_creator(1, numElements);
         double **Bswap = matrix_creator(1, numElements);
@@ -250,16 +205,28 @@ int main(int argc, char** argv) {
 
         printf("Myrank is %d. Pieces of A and B received.\n", myrank);
 
+        A = matrix_creator(dim, lato * dim);
+        B = matrix_creator(dim, lato * dim);
         C = matrix_creator(dim, dim);
 
         // initialize C
-        zero_matrix_init(C, dim, dim);
+        zero_matrix_init(C, lato, lato);
+
+        int rid = myrank % lato;
+        int cid = (int) myrank / lato;
+
+        k = rid * numElements;
+
+        l = cid * numElements;
 
         for (i = 0; i < numElements; i++) {
-            Ablock[0][i] = Aswap[0][i];
-            Bblock[0][i] = Bswap[0][i];
+            Ablock[0][k] = Aswap[0][i];
+            Bblock[0][l] = Bswap[0][i];
+            k++;
+            l++;
         }
 
+        // Raccolta di tutti i blocchi relativi alla riga e alla colonna
         for (i = 1; i < lato; i++) {
 
             row_dest = getRankRowDest(myrank, nblock);
@@ -274,36 +241,43 @@ int main(int argc, char** argv) {
             // invio e ricezione del blocco B
             MPI_Sendrecv_replace(Bswap[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+
+            if (k == lato * numElements) {
+                k = 0;
+            }
+
+            if (l == lato * numElements) {
+                l = 0;
+            }
+
             for (j = 0; j < numElements; j++) {
-                Ablock[i][j] = Aswap[0][j];
-                Bblock[i][j] = Bswap[0][j];
+                Ablock[0][k] = Aswap[0][j];
+                Bblock[0][l] = Bswap[0][j];
+                k++;
+                l++;
             }
         }
 
+        int x, y, el = 0;
 
-        /*
+        // Composizione ordinata delle righe e delle colonne
+        for (j = 0; j < lato * dim; j += dim)
+            for (x = 0; x < dim; x++)
+                for (y = j; y < dim + j; y++) {
+                    A[x][y] = Ablock[0][el];
+                    el++;
+                }
 
-        for (index = 0; index < lato; index++) {
-            A = devectorizer(dim, dim, Ablock[0]);
-            B = devectorizer(dim, dim, Bblock[0]);
-            matrix_transposer(dim, B);
-
-            // Multiplication
-            matrix_mult(A, B, C, dim);
-
-            row_dest = getRankRowDest(myrank, nblock);
-            row_mit = getRankRowMit(myrank, nblock);
-
-            // invio e ricezione del blocco A
-            MPI_Sendrecv_replace(Ablock[0], numElements, MPI_DOUBLE, row_dest, 1, row_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            col_dest = getRankColDest(myrank, nblock);
-            col_mit = getRankColMit(myrank, nblock);
-
-            // invio e ricezione del blocco B
-            MPI_Sendrecv_replace(Bblock[0], numElements, MPI_DOUBLE, col_dest, 1, col_mit, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
+        for (x = 0; x < dim; x++) {
+            el = 0;
+            for (j = 0; j < lato * dim; j++) {
+                B[x][el] = Bblock[0][(j * dim) + x];
+                el++;
+            }
         }
+
+        // Multiplication
+        matrix_mult(A, B, C, dim, lato * dim);
 
         double *C_vett = matrix_vectorizer(dim, dim, C);
         MPI_Send(C_vett, numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
@@ -329,7 +303,7 @@ int main(int argc, char** argv) {
         StopwatchPrintWithComment("Master total time: %f\n\n", watch);
 
         printf("MASTER. Print C.\n");
-        printmatrix(N, N, C);*/
+        printmatrix(N, N, C);
     }
 
     MPI_Finalize();
