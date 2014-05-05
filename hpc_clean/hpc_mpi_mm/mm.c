@@ -7,6 +7,7 @@
 
 #include "header.h"
 #include "MpiStopwatch.h"
+#include "inout.h"
 #define TAG 13
 
 double ** matrix_block(double** matrix, int n, int nblock) {
@@ -183,7 +184,7 @@ int main(int argc, char** argv) {
         } else if (inout_bool == 1) {
             /*input filename generation*/
             char infile[256];
-            snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, n);
+            snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, N);
             
             /* matrix loading */
             A = matrix_loader(infile);
@@ -327,7 +328,7 @@ int main(int argc, char** argv) {
             /*printmatrix(N, N, res);*/
         } else {
             char outfile[256];
-            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes-1);
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes-1);
             matrix_writer(N, C, outfile);
         }
         
@@ -335,7 +336,7 @@ int main(int argc, char** argv) {
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, n, inout_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, N, inout_bool); /*final string generation*/
         StopwatchPrintToFile(final, watch);
     }
 
