@@ -13,7 +13,7 @@
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmp, *rigaA, *ris, *Bvett;
-    int recv, indexR, index, myrank, numnodes, N, i, j, k, r, c;
+    int recv, indexR, index=0, myrank, numnodes, N, i, j, k, r, c;
 
     MPI_Init(&argc, &argv);
 
@@ -22,14 +22,14 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
 
-        /*I\O*/
+    /*I\O*/
     int inout_bool = atoi(argv[2]);
-    char * homePath = getenv ("HOME"); /*homepath*/
+    char * homePath = getenv("HOME"); /*homepath*/
 
     /*CSV file support*/
     char *op = "farm", final[256];
     int myid;
-    
+
     /*stopwatch*/
     Stopwatch watch = StopwatchCreate();
 
@@ -40,10 +40,10 @@ int main(int argc, char** argv) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
 
-	/*start timer*/
+        /*start timer*/
         StopwatchStart(watch);
 
-         /*input type evaluation*/
+        /*input type evaluation*/
         if (inout_bool == 0) { /*no input, so randomly generated matrix*/
 
             /* matrix creation */
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
             /*input filename generation*/
             char infile[256];
             snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, N);
-            
+
             /* matrix loading */
             A = matrix_loader(infile);
             B = matrix_loader(infile);
@@ -117,9 +117,11 @@ int main(int argc, char** argv) {
     if (myrank != 0) {
         // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
         MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
+        printf("Index è: %d\n", index);
+        printf("Entrato\n");
         while (index != -1) {
             MPI_Recv(rigaA, N, MPI_DOUBLE, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    printf("Recv fatta\n");
             for (j = 0; j < N; j++) ris[j] = 0.0;
 
             for (j = 0; j < N; j++) {
@@ -162,24 +164,25 @@ int main(int argc, char** argv) {
                 }
             }
         }
-
-        /*output type evaluation*/
-        if (inout_bool == 0) { /*no output, so no result (or print)*/
-            /*printmatrix(N, N, res);*/
-        } else {
-            char outfile[256];
-            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes-1);
-            matrix_writer(N, C, outfile);
-        }
         
-        /*stopwatch stop*/
-        StopwatchStop(watch);
-        StopwatchPrintWithComment("Master total time: %f\n", watch);
-        myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, N, inout_bool); /*final string generation*/
-        StopwatchPrintToFile(final, watch);
-
+        printf("Entro nell'ultma if\n");
         if (recv == N) {
+
+            /*output type evaluation*/
+            if (inout_bool == 0) { /*no output, so no result (or print)*/
+                /*printmatrix(N, N, res);*/
+            } else {
+                char outfile[256];
+                snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes - 1);
+                matrix_writer(N, C, outfile);
+            }
+
+            /*stopwatch stop*/
+            StopwatchStop(watch);
+            StopwatchPrintWithComment("Master total time: %f\n", watch);
+            myid = (int) MPI_Wtime(); /*my id generation*/
+            snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes - 1, N, inout_bool); /*final string generation*/
+            StopwatchPrintToFile(final, watch);
 
             freematrix(N, A);
             freematrix(N, C);
