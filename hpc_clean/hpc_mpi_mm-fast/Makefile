@@ -10,15 +10,15 @@ UNAME_S := $(shell uname -s)
 UNAME_P := $(shell uname -p)
 UNAME_M := $(shell uname -m)
 
-FAST=-Ofast
+OPTIMIZED=-Ofast
 ifeq ($(UNAME_S),Linux)
-	FAST += -march=native
+	OPTIMIZED += -march=native
 endif
 ifeq ($(UNAME_S),Darwin)
 	ifeq ($(UNAME_M),x86_64)
-		FAST += -mtune=core-avx-i
+		OPTIMIZED += -mtune=core-avx-i
 	else
-		FAST += -msse4.2
+		OPTIMIZED += -msse4.2
 	endif
 endif
 
@@ -33,15 +33,15 @@ NAME = $(dir)/hpc_mpi_mm-fast
 all: update base
 
 base: mmfast.c 
-	$(CC) -o $(NAME) mmfast.c -lm
+	$(CC) -o $(NAME) mmfast.c -lm -DOPTI='""'
 
 strict: mmfast.c 
-	$(CC) $(STRICT) -o $(NAME) mmfast.c -lm
+	$(CC) $(STRICT) -o $(NAME) mmfast.c -lm -DOPTI='""'
 
-fast_s:  mmfast.c
-	$(CC) $(FAST) -o $(NAME)-op mmfast.c -lm -Dptimized=op
+opti_s:  mmfast.c
+	$(CC) $(OPTIMIZED) -o $(NAME)-op mmfast.c -lm -DOPTI='"-op"'
 
-fast: update fast_s
+opti: update opti_s
 
 clean:
 	rm $(dir)/*.out
