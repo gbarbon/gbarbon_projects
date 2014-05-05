@@ -8,38 +8,15 @@
 \f0\fs24 \cf0 - svn exclude su cartella bin
 \f1 \
 
-\f0 - e se numero di processi \'e8 dispari?? --> gestire eccezione o ridurre numero di processi ad un valore utile? Tale che N*N % numprocessi = 0?
-\f1 \
-
-\f0 - e se matrice non ha numero di righe/colonne pari??
-\f1 \
-
 \f0 - scrivere script (in python?) che lanci le varie versioni del programma pi\'f9 volte, collezioni i risultati in un file e sia in grado di generare un documento con i risultati dei test
 \f1 \
 
-\f0 - 8 processi con matrice 8x8 da errore, poich\'e9 la matrice \'e8 si divisibile per 8, ma non con matrici quadrate
+\f0 - ricorda differenza fra mia e cristian: il transposer sulla B (solo su mm fast)
 \f1 \
 
-\f0 - ricorda differenza fra mia e cristian: il transposer sulla B
-\f1 \
-
-\f0 - aggiungere funzione F per aumentare costo computazionale
-\f1 \
-
-\f0 - aggiungere lettura e scrittura su disco
-\f1 \
-
-\f0 - file di collezione dei tempi di esecuzione csv (del tipo: dimensione matrice, num processi, tempo totale, algoritmo, matricola lancio)
-\f1 \
-
-\f0 - problema. matrici in lettura da file, determiniamo da file numero di righe e numero di colonne. Per\'f2 sarebbe necessario conoscerli per decidere la granularit\'e0 del numero di processi. Una soluzione potrebbe essere di dare all'utente delle scelte gi\'e0 predefinite circa il numero di processi da scegliere. --> come salvare dimensione della matrice (da funzione matrix_loader)?
-\f1 \
-
-\f0 - problemi su hpc_mpi_mm con N = 9 e numproc 81
-\f1 \
-
-\f0 - RIFARE test case excel
-\f1 \
+\f0\b - aggiungere funzione F per aumentare costo computazionale (prevederne la scelta a lancio)\
+- test con ottimizzazioni (problema: non visibile su testfile.csv --> si, gestibile, basta fare compilazione con altro nome eseguibile per il fast, es: cannon-opt)
+\f1\b0 \
 
 \f0 - sostituire printf con sprintf??
 \f1 \
@@ -49,14 +26,9 @@
 
 \f0 - ricorda: le matrici di input devono essere dense e "synthethic floating-point FP matrixes, stored row-major as ascii files"
 \f1 \
-
-\f0 - Problemi sui comunicatori con esecuzione: mpiexec -hostfile hosts -n 9 ./bin/hpc_mpi_mm 192
-\f1 \
-
-\f0 - Problemi su master sender sulle send con esecuzione: mpiexec -hostfile hosts -n 16 ./bin/hpc_mpi_mm 768\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural
-\cf0 - errore su mpi mm fast versione in lettura input. Problema in caricamento matrice, con mat 192 ottengo I is: 384. J is: 114. Sembra funzionare correttamente con matrice 4x4\
-- mult_mm \'e8 la versione originale di Cristian per il matrix matrix\
-- errore in caricamento file con file "grossi". Esempi: dim:192 ottengo i=384 e j=114 . Dim:256 ottengo i=768 e j=114
+
+\f0 \cf0 - mult_mm \'e8 la versione originale di Cristian per il matrix matrix\
+
 \f1 \
 }
