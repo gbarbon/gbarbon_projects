@@ -58,6 +58,22 @@ void StopwatchPrintWithComment(const char* message, Stopwatch chrono)
 {
 	printf(message, StopwatchGetElapsed(chrono));
 }
-
+void StopwatchPrintToFile(const char* text, Stopwatch chrono) {
+    char buf[256];
+    char filename[256];
+    
+    /*locate home path*/
+    char * homePath = getenv ("HOME");
+    snprintf(filename, sizeof filename, "%s/hpc_temp/hpc_time_res/testfile.csv", homePath);
+    
+    FILE *testfile = fopen(filename, "a");
+    if (testfile == NULL) {
+        printf("Impossible to load input files\n");
+    } else {
+    snprintf(buf, sizeof buf, "%s,%f\n", text, StopwatchGetElapsed(chrono));
+    fputs(buf, testfile);
+    fclose(testfile);
+    }
+}
 
 #endif /* STOPWATCH_H_ */
