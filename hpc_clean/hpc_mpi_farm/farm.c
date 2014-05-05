@@ -21,6 +21,14 @@ int main(int argc, char** argv) {
 
     N = atoi(argv[1]);
 
+        /*I\O*/
+    int inout_bool = atoi(argv[2]);
+    char * homePath = getenv ("HOME"); /*homepath*/
+
+    /*CSV file support*/
+    char *op = "farm", final[256];
+    int myid;
+    
     /*stopwatch*/
     Stopwatch watch = StopwatchCreate();
 
@@ -34,9 +42,29 @@ int main(int argc, char** argv) {
 	/*start timer*/
         StopwatchStart(watch);
 
-        A = matrix_creator(N, N);
+         /*input type evaluation*/
+        if (inout_bool == 0) { /*no input, so randomly generated matrix*/
 
-        B = matrix_creator(N, N);
+            /* matrix creation */
+            A = matrix_creator(N, N);
+            B = matrix_creator(N, N);
+
+            /*init matrices with random values*/
+            simple_matrix_init(A, N);
+            simple_matrix_init(B, N);
+
+        } else if (inout_bool == 1) {
+            /*input filename generation*/
+            char infile[256];
+            snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, n);
+            
+            /* matrix loading */
+            A = matrix_loader(infile);
+            B = matrix_loader(infile);
+        } else {
+            printf("Error on input output value!!!\n");
+            return 0;
+        }
 
         C = matrix_creator(N, N);
 
@@ -54,9 +82,6 @@ int main(int argc, char** argv) {
     }
 
     if (myrank == 0) {
-        // initialize A and B
-        simple_matrix_init(A, N);
-        simple_matrix_init(B, N);
 
         Bvett = matrix_vectorizer(N, N, B);
 
@@ -137,12 +162,23 @@ int main(int argc, char** argv) {
             }
         }
 
-	/*stopwatch stop*/
+        /*output type evaluation*/
+        if (inout_bool == 0) { /*no output, so no result (or print)*/
+            /*printmatrix(N, N, res);*/
+        } else {
+            char outfile[256];
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes-1);
+            matrix_writer(N, C, outfile);
+        }
+        
+        /*stopwatch stop*/
         StopwatchStop(watch);
-        StopwatchPrintWithComment("Master total time: %f\n\n", watch);
+        StopwatchPrintWithComment("Master total time: %f\n", watch);
+        myid = (int) MPI_Wtime(); /*my id generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, n, inout_bool); /*final string generation*/
+        StopwatchPrintToFile(final, watch);
 
         if (recv == N) {
-            printmatrix(N, N, C);
 
             freematrix(N, A);
             freematrix(N, C);

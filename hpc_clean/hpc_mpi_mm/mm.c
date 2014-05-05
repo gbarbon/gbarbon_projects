@@ -149,6 +149,14 @@ int main(int argc, char** argv) {
     nblock = numnodes - 1;
     master = nblock;
 
+        /*I\O*/
+    int inout_bool = atoi(argv[2]);
+    char * homePath = getenv ("HOME"); /*homepath*/
+
+    /*CSV file support*/
+    char *op = "mm", final[256];
+    int myid;
+    
     dim = N / sqrt(nblock);
 
     // allocate A, B, and C --- note that you want these to be
@@ -161,17 +169,34 @@ int main(int argc, char** argv) {
         /*start timer*/
         StopwatchStart(watch);
 
-        A = matrix_creator(N, N);
+        /*input type evaluation*/
+        if (inout_bool == 0) { /*no input, so randomly generated matrix*/
 
-        B = matrix_creator(N, N);
+            /* matrix creation */
+            A = matrix_creator(N, N);
+            B = matrix_creator(N, N);
+
+            /*init matrices with random values*/
+            simple_matrix_init(A, N);
+            simple_matrix_init(B, N);
+
+        } else if (inout_bool == 1) {
+            /*input filename generation*/
+            char infile[256];
+            snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, n);
+            
+            /* matrix loading */
+            A = matrix_loader(infile);
+            B = matrix_loader(infile);
+        } else {
+            printf("Error on input output value!!!\n");
+            return 0;
+        }
 
         C = matrix_creator(N, N);
 
         printf("MASTER. A,B,C allocated\n");
 
-        // initialize A and B
-        simple_matrix_init(A, N);
-        simple_matrix_init(B, N);
         zero_matrix_init(C, N, N);
 
         // suddivisione in blocchi della matrice
@@ -297,12 +322,21 @@ int main(int argc, char** argv) {
 
         block_matrix(C, C_vett, nblock, N);
 
-        //stopwatch stop
+        /*output type evaluation*/
+        if (inout_bool == 0) { /*no output, so no result (or print)*/
+            /*printmatrix(N, N, res);*/
+        } else {
+            char outfile[256];
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes-1);
+            matrix_writer(N, C, outfile);
+        }
+        
+        /*stopwatch stop*/
         StopwatchStop(watch);
-        StopwatchPrintWithComment("Master total time: %f\n\n", watch);
-
-        printf("MASTER. Print C.\n");
-        printmatrix(N, N, C);
+        StopwatchPrintWithComment("Master total time: %f\n", watch);
+        myid = (int) MPI_Wtime(); /*my id generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, n, inout_bool); /*final string generation*/
+        StopwatchPrintToFile(final, watch);
     }
 
     MPI_Finalize();
