@@ -104,14 +104,17 @@ void zero_matrix_init(double** mat, int a, int b) {
     }
 }
 
-void matrix_mult(double** A, double** B, double** C, int dim) {
+void matrix_mult(double** A, double** B, double** C, int dim, int load) {
     int i, j, k, l;
 
     for (i = 0; i < dim; i++) {
         l = 0;
         for (j = 0; j < dim; j++) {
             for (k = 0; k < dim; k++) {
-                C[i][j] += A[i][k] * B[l][k];
+                if (load == 0)
+                    C[i][j] += A[i][k] * B[l][k];
+                else
+                    C[i][j] += heavy(A[i][k]) * B[l][k];
             }
             l++;
         }
@@ -195,9 +198,12 @@ int main(int argc, char** argv) {
 
     dim = N / sqrt(nblock);
     
-        /*I\O*/
+    /*I\O*/
     int inout_bool = atoi(argv[2]);
     char * homePath = getenv ("HOME"); /*homepath*/
+    
+    // heavy load f(A) abilitation
+    int load_bool = atoi(argv[3]);
 
     /*CSV file support*/
     char *op = "cannon", final[256];
@@ -297,7 +303,7 @@ int main(int argc, char** argv) {
             matrix_transposer(dim, B);
 
             // Multiplication
-            matrix_mult(A, B, C, dim);
+            matrix_mult(A, B, C, dim, load_bool);
 
             row_dest = getRankRowDest(myrank, nblock);
             row_mit = getRankRowMit(myrank, nblock);

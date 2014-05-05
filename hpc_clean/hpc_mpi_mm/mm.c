@@ -62,14 +62,17 @@ void zero_matrix_init(double** mat, int a, int b) {
     }
 }
 
-void matrix_mult(double** A, double** B, double** C, int r, int c) {
+void matrix_mult(double** A, double** B, double** C, int r, int c, int load) {
     int i, j, k, l;
 
     for (i = 0; i < r; i++) {
         l = 0;
         for (j = 0; j < r; j++) {
             for (k = 0; k < c; k++) {
-                C[i][j] += A[i][k] * B[l][k];
+                if (load == 0)
+                    C[i][j] += A[i][k] * B[l][k];
+                else
+                    C[i][j] += heavy(A[i][k]) * B[l][k];
             }
             l++;
         }
@@ -150,14 +153,17 @@ int main(int argc, char** argv) {
     nblock = numnodes - 1;
     master = nblock;
 
-        /*I\O*/
+    /*I\O*/
     int inout_bool = atoi(argv[2]);
-    char * homePath = getenv ("HOME"); /*homepath*/
+    char * homePath = getenv("HOME"); /*homepath*/
+
+    // heavy load f(A) abilitation
+    int load_bool = atoi(argv[3]);
 
     /*CSV file support*/
     char *op = "mm", final[256];
     int myid;
-    
+
     dim = N / sqrt(nblock);
 
     // allocate A, B, and C --- note that you want these to be
@@ -185,7 +191,7 @@ int main(int argc, char** argv) {
             /*input filename generation*/
             char infile[256];
             snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, N);
-            
+
             /* matrix loading */
             A = matrix_loader(infile);
             B = matrix_loader(infile);
@@ -302,7 +308,7 @@ int main(int argc, char** argv) {
         }
 
         // Multiplication
-        matrix_mult(A, B, C, dim, lato * dim);
+        matrix_mult(A, B, C, dim, lato * dim, load_bool);
 
         double *C_vett = matrix_vectorizer(dim, dim, C);
         MPI_Send(C_vett, numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
@@ -328,15 +334,15 @@ int main(int argc, char** argv) {
             /*printmatrix(N, N, res);*/
         } else {
             char outfile[256];
-            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes-1);
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes - 1);
             matrix_writer(N, C, outfile);
         }
-        
+
         /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, N, inout_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes - 1, N, inout_bool); /*final string generation*/
         StopwatchPrintToFile(final, watch);
     }
 

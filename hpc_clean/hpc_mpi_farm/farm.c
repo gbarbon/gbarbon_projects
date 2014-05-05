@@ -13,7 +13,7 @@
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmp, *rigaA, *ris, *Bvett;
-    int recv, indexR, index=0, myrank, numnodes, N, i, j, k, r, c;
+    int recv, indexR, index = 0, myrank, numnodes, N, i, j, k, r, c;
 
     MPI_Init(&argc, &argv);
 
@@ -25,6 +25,9 @@ int main(int argc, char** argv) {
     /*I\O*/
     int inout_bool = atoi(argv[2]);
     char * homePath = getenv("HOME"); /*homepath*/
+
+    // heavy load f(A) abilitation
+    int load_bool = atoi(argv[3]);
 
     /*CSV file support*/
     char *op = "farm", final[256];
@@ -117,16 +120,17 @@ int main(int argc, char** argv) {
     if (myrank != 0) {
         // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
         MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        printf("Index è: %d\n", index);
-        printf("Entrato\n");
+
         while (index != -1) {
             MPI_Recv(rigaA, N, MPI_DOUBLE, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    printf("Recv fatta\n");
             for (j = 0; j < N; j++) ris[j] = 0.0;
 
             for (j = 0; j < N; j++) {
                 for (i = 0; i < N; i++) {
-                    ris[j] += rigaA[i] * B[i][j];
+                    if (load_bool == 0)
+                        ris[j] += rigaA[i] * B[i][j];
+                    else
+                        ris[j] += heavy(rigaA[i]) * B[i][j];
                 }
             }
             printf("Myrank is %d. Recv effettuate\n", myrank);
@@ -164,8 +168,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        
-        printf("Entro nell'ultma if\n");
+
         if (recv == N) {
 
             /*output type evaluation*/
