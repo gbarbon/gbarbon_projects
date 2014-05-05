@@ -134,7 +134,7 @@ int getRankColMit(int rank, int np) {
 int main(int argc, char** argv) {
 
     double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
-    double startTime, endTime;
+    
     int master, nblock, numElements, offset, myrank, numnodes, N, i, j, k, l;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
