@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
             StopwatchStop(watch);
             StopwatchPrintWithComment("Master total time: %f\n", watch);
             myid = (int) MPI_Wtime(); /*my id generation*/
-            snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes - 1, N, inout_bool); /*final string generation*/
+            snprintf(final, sizeof final, "%d,%s%s,%d,%d,%d,%d", myid, op, OPTI, numnodes - 1, N, inout_bool, load_bool); /*final string generation*/
             StopwatchPrintToFile(final, watch);
 
             freematrix(N, A);

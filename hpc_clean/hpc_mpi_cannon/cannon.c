@@ -197,11 +197,11 @@ int main(int argc, char** argv) {
     master = nblock;
 
     dim = N / sqrt(nblock);
-    
+
     /*I\O*/
     int inout_bool = atoi(argv[2]);
-    char * homePath = getenv ("HOME"); /*homepath*/
-    
+    char * homePath = getenv("HOME"); /*homepath*/
+
     // heavy load f(A) abilitation
     int load_bool = atoi(argv[3]);
 
@@ -216,10 +216,10 @@ int main(int argc, char** argv) {
         printf("Printf atoi N: %d\n", N);
         printf("Printf numnodes: %d\n", numnodes);
 
-	/*start timer*/
+        /*start timer*/
         StopwatchStart(watch);
-        
-         /*input type evaluation*/
+
+        /*input type evaluation*/
         if (inout_bool == 0) { /*no input, so randomly generated matrix*/
 
             /* matrix creation */
@@ -234,7 +234,7 @@ int main(int argc, char** argv) {
             /*input filename generation*/
             char infile[256];
             snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, N);
-            
+
             /* matrix loading */
             A = matrix_loader(infile);
             B = matrix_loader(infile);
@@ -337,21 +337,21 @@ int main(int argc, char** argv) {
         double *C_vett = matrix_vectorizer(nblock, numElements, tempC);
 
         block_matrix(C, C_vett, nblock, N);
-        
+
         /*output type evaluation*/
         if (inout_bool == 0) { /*no output, so no result (or print)*/
             /*printmatrix(n, n, res);*/
         } else {
             char outfile[256];
-            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes-1);
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, N, numnodes - 1);
             matrix_writer(N, C, outfile);
         }
-        
+
         /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s,%d,%d,%d", myid, op, numnodes-1, N, inout_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s%s,%d,%d,%d,%d", myid, op, OPTI, numnodes - 1, N, inout_bool, load_bool); /*final string generation*/
         StopwatchPrintToFile(final, watch);
 
 

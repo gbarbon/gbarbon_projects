@@ -1,9 +1,11 @@
 # CC says that the variable CC will be the compiler to use.
 CC=mpicc
 
-# CFLAGS will be the options I'll pass to the compiler.
+# OPTIMIZED will be the optimization options passed to the compiler.
 # -Ofast := all optimizations
-# -mark=native := activate machine instructions sets
+# -mark=native := activate machine instructions sets (only for Lynux systems)
+# -mtune=core-avx-i := for Intel_Core OSX architectures
+# -msse4.2 := for non-Intel_Core OSX architectures
 
 # uname: -s: System name, -p: processor type, -m: machine type
 UNAME_S := $(shell uname -s)
@@ -29,17 +31,18 @@ STRICT=-ansi -pedantic -Wall -Werror
 dir = bin
 
 NAME = $(dir)/hpc_mpi_mm-fast
+CFILENAME = mmfast.c
 
 all: update base
 
-base: mmfast.c 
-	$(CC) -o $(NAME) mmfast.c -lm -DOPTI='""'
+base: 
+	$(CC) -o $(NAME) $(CFILENAME) -lm -DOPTI='""'
 
-strict: mmfast.c 
-	$(CC) $(STRICT) -o $(NAME) mmfast.c -lm -DOPTI='""'
+strict: 
+	$(CC) $(STRICT) -o $(NAME) $(CFILENAME) -lm -DOPTI='""'
 
-opti_s:  mmfast.c
-	$(CC) $(OPTIMIZED) -o $(NAME)-op mmfast.c -lm -DOPTI='"-op"'
+opti_s:  
+	$(CC) $(OPTIMIZED) -o $(NAME)-op $(CFILENAME) -lm -DOPTI='"-op"'
 
 opti: update opti_s
 
