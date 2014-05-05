@@ -20,7 +20,7 @@
  * @param offset        Dimension of the local worker's matrix
  * @return res  Pointer to the result offsetxoffset matrix
  */
-double** mult(double** rows, double** cols, int n, int offset) {
+double** mult(double** rows, double** cols, int n, int offset, int load) {
     int i, j, k;
     double** res; /*data structure for resulting matrix*/
 
@@ -35,6 +35,10 @@ double** mult(double** rows, double** cols, int n, int offset) {
             for (k = 0; k < n; k++) {
                 /*notice that cols came from B that is already transposed*/
                 res[i][j] += rows[i][k] * cols[j][k];
+                if (load == 0)
+                        res[i][j] += rows[i][k] * cols[j][k];
+                else
+                    res[i][j] += heavy(rows[i][k]) * cols[j][k];
             }
         }
     }
@@ -152,6 +156,9 @@ int main(int argc, char *argv[]) {
     /*variables init*/
     mb = sqrt(numnodes - 1);
     offset = n / mb;
+    
+    // heavy load f(A) abilitation
+    int load_bool = atoi(argv[3]);
 
     /*I\O*/
     int inout_bool = atoi(argv[2]);
@@ -228,7 +235,7 @@ int main(int argc, char *argv[]) {
         cols = devectorizer(offset, n, temp_cols);
 
         /*work and free rows and cols*/
-        res = mult(rows, cols, n, offset);
+        res = mult(rows, cols, n, offset, load_bool);
         freematrix(offset, rows);
         freematrix(offset, cols);
         free(temp_rows);

@@ -4,7 +4,23 @@ CC=mpicc
 # CFLAGS will be the options I'll pass to the compiler.
 # -Ofast := all optimizations
 # -mark=native := activate machine instructions sets
-FAST=-Ofast -march=native
+
+# uname: -s: System name, -p: processor type, -m: machine type
+UNAME_S := $(shell uname -s)
+UNAME_P := $(shell uname -p)
+UNAME_M := $(shell uname -m)
+
+FAST=-Ofast
+ifeq ($(UNAME_S),Linux)
+	FAST += -march=native
+endif
+ifeq ($(UNAME_S),Darwin)
+	ifeq ($(UNAME_M),x86_64)
+		FAST += -mtune=core-avx-i
+	else
+		FAST += -msse4.2
+	endif
+endif
 
 # -Wall := all warnings
 # -Werror := error on warning
@@ -23,7 +39,7 @@ strict: mmfast.c
 	$(CC) $(STRICT) -o $(NAME) mmfast.c -lm
 
 fast_s:  mmfast.c
-	$(CC) $(FAST) -o $(NAME) mmfast.c -lm
+	$(CC) $(FAST) -o $(NAME)-op mmfast.c -lm -Dptimized=op
 
 fast: update fast_s
 
