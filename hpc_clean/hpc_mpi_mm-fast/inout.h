@@ -20,7 +20,7 @@
  * @return mat  Pointer to a double nxn matrix
  */
 double ** matrix_loader(char* input_file) {
-    char buffer[1024];
+    char buffer[20000];
     char *record, *line;
     int i = 0, j = 0, already_col = 0;
 
