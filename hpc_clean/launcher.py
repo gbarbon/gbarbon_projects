@@ -24,7 +24,6 @@ def makeall():
 		os.chdir(path) #move into the desired path
 		for opt in options:
 			shellcom = "make " + opt
-			print shellcom
 			shellcom = shellcom.split()
 			common(shellcom)
 		os.chdir("..") #move back to the previous path
