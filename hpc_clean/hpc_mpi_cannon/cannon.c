@@ -26,8 +26,6 @@ void skewing_row(double ** M, int n) {
         }
         k++;
     }
-
-    //freematrix(n, r_swap);
 }
 
 void skewing_column(double ** M, int n) {
@@ -48,8 +46,6 @@ void skewing_column(double ** M, int n) {
             k++;
         }
     }
-
-    //freematrix(n, c_swap);
 }
 
 double ** matrix_block(double** matrix, int n, int nblock) {
@@ -57,7 +53,7 @@ double ** matrix_block(double** matrix, int n, int nblock) {
     double * tempM, **block, ** Mblock;
 
     block = matrix_creator(offset, offset);
-    Mblock = matrix_creator(nblock, (offset * offset));
+    Mblock = (double **) malloc(nblock * sizeof (double*));
 
     k = 0;
     for (i = 0; i < n; i += offset)
@@ -72,9 +68,9 @@ double ** matrix_block(double** matrix, int n, int nblock) {
             tempM = matrix_vectorizer(offset, offset, block);
             Mblock[k] = tempM;
             k++;
-
-            //free(tempM);
         }
+
+    freematrix(offset, block);
 
     return Mblock;
 }
@@ -179,9 +175,8 @@ int getRankColMit(int rank, int np) {
 
 int main(int argc, char** argv) {
 
-    double **A, **B, **C, *tmpA, *tmpB, **Ablock, **Bblock;
-    double startTime, endTime;
-    int master, nblock, numElements, offset, myrank, numnodes, N, i, j, k, l;
+    double **A, **B, **C, **Ablock, **Bblock;
+    int master, nblock, numElements, offset, myrank, numnodes, N, i;
     int row_dest, row_mit, col_dest, col_mit, index, lato, dim;
 
     /*stopwatch*/
@@ -250,12 +245,6 @@ int main(int argc, char** argv) {
         zero_matrix_init(C, N, N);
 
         // suddivisione in blocchi della matrice
-        /*Ablock = (double **) malloc(sizeof (double *) * N);
-        Bblock = (double **) malloc(sizeof (double *) * N);
-
-        Ablock = matrix_block(A, nblock, N);
-        Bblock = matrix_block(B, nblock, N);*/
-
         Ablock = matrix_block(A, N, nblock);
         Bblock = matrix_block(B, N, nblock);
 
@@ -321,6 +310,14 @@ int main(int argc, char** argv) {
 
         double *C_vett = matrix_vectorizer(dim, dim, C);
         MPI_Send(C_vett, numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
+
+        // free
+        freematrix(dim, A);
+        freematrix(dim, B);
+        freematrix(dim, C);
+        freematrix(1, Ablock);
+        freematrix(1, Bblock);
+        free(C_vett);
     }
 
     if (myrank == master) {
@@ -354,9 +351,17 @@ int main(int argc, char** argv) {
         snprintf(final, sizeof final, "%d,%s%s,%d,%d,%d,%d", myid, op, OPTI, numnodes - 1, N, inout_bool, load_bool); /*final string generation*/
         StopwatchPrintToFile(final, watch);
 
-
+        // free
+        freematrix(N, A);
+        freematrix(N, B);
+        freematrix(N, C);
+        freematrix(nblock, Ablock);
+        freematrix(nblock, Bblock);
+        freematrix(nblock, tempC);
+        free(C_vett);
     }
 
+    free(watch);
     MPI_Finalize();
 
     return 0;

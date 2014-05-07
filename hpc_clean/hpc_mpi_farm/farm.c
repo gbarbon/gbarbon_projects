@@ -12,8 +12,8 @@
 
 int main(int argc, char** argv) {
 
-    double **A, **B, **C, *tmp, *rigaA, *ris, *Bvett;
-    int recv, indexR, index = 0, myrank, numnodes, N, i, j, k, r, c;
+    double **A, **B, **C, *rigaA, *ris, *Bvett;
+    int recv, indexR, index = 0, myrank, numnodes, N, i, j;
 
     MPI_Init(&argc, &argv);
 
@@ -194,6 +194,7 @@ int main(int argc, char** argv) {
 
     freematrix(N, B);
     free(Bvett);
+    free(watch);
 
     if (myrank != 0) {
         free(rigaA);
