@@ -25,8 +25,8 @@ double** mult(double** rows, double** cols, int n, int offset, int load) {
     double** res; /*data structure for resulting matrix*/
 
     /*stopwatch start*/
-    Stopwatch watch = StopwatchCreate();
-    StopwatchStart(watch);
+    //Stopwatch watch = StopwatchCreate();
+    //StopwatchStart(watch);
 
     res = matrix_creator(offset, offset);
     for (i = 0; i < offset; i++) {
@@ -44,9 +44,9 @@ double** mult(double** rows, double** cols, int n, int offset, int load) {
     }
 
     /*stopwatch stop*/
-    StopwatchStop(watch);
+    /*StopwatchStop(watch);
     StopwatchPrintWithComment("Time in mult function is: %f\n", watch);
-    free(watch);
+    free(watch);*/
 
     return res;
 }
@@ -63,9 +63,9 @@ void master_sender(double** A, double** B, int offset, int n) {
     int i, j, worker = 0;
     double * tempA, * tempB;
 
-    /*stopwatch start*/
+    /*stopwatch start*//*
     Stopwatch watch = StopwatchCreate();
-    StopwatchStart(watch);
+    StopwatchStart(watch);*/
 
     for (j = 0; j < n; j += offset)
         for (i = 0; i < n; i += offset) {
@@ -84,9 +84,9 @@ void master_sender(double** A, double** B, int offset, int n) {
         }
 
     /*stopwatch stop*/
-    StopwatchStop(watch);
+    /*StopwatchStop(watch);
     StopwatchPrintWithComment("Time in master_sender function is: %f\n", watch);
-    free(watch);
+    free(watch);*/
 }
 
 /**
@@ -101,8 +101,8 @@ double** master_receiver(int n, int offset) {
     double** res, ** res_temp;
 
     /*stopwatch start*/
-    Stopwatch watch = StopwatchCreate();
-    StopwatchStart(watch);
+    /*Stopwatch watch = StopwatchCreate();
+    StopwatchStart(watch);*/
 
     res = matrix_creator(n, n);
     for (j = 0; j < n; j += offset)
@@ -125,9 +125,9 @@ double** master_receiver(int n, int offset) {
         }
 
     /*stopwatch stop*/
-    StopwatchStop(watch);
+    /*StopwatchStop(watch);
     StopwatchPrintWithComment("Time in master_receiver function is: %f\n", watch);
-    free(watch);
+    free(watch);*/
 
     return res;
 }
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
 
     } else {
         /*stopwatch start*/
-        StopwatchStart(watch);
+        //StopwatchStart(watch);
 
         /*data structure for incoming rows & cols*/
         double** rows;
@@ -250,8 +250,8 @@ int main(int argc, char *argv[]) {
         free(res_vect);
 
         /*stopwatch stop*/
-        StopwatchStop(watch);
-        StopwatchPrintWithComment("Worker total time: %f\n", watch);
+        //StopwatchStop(watch);
+        //StopwatchPrintWithComment("Worker total time: %f\n", watch);
     }
 
     //MPI_Barrier(MPI_COMM_WORLD);
