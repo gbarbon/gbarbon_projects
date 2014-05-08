@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
                     if (load_bool == 0)
                         ris[j] += rigaA[i] * B[i][j];
                     else
-                        ris[j] += heavy(rigaA[i]) * B[i][j];
+                        ris[j] += heavy(rigaA[i], load_bool) * B[i][j];
                 }
             }
             printf("Myrank is %d. Recv effettuate\n", myrank);

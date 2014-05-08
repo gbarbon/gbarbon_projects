@@ -72,7 +72,7 @@ void matrix_mult(double** A, double** B, double** C, int r, int c, int load) {
                 if (load == 0)
                     C[i][j] += A[i][k] * B[l][k];
                 else
-                    C[i][j] += heavy(A[i][k]) * B[l][k];
+                    C[i][j] += heavy(A[i][k], load) * B[l][k];
             }
             l++;
         }

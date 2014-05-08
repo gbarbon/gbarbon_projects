@@ -173,9 +173,15 @@ void matrix_transposer(int n, double ** A) {
         }
 }
 
-double heavy(double a) {
-    int i;
-    for (i = 0; i < 5; i++)
+double heavy(double a, int h) {
+    int i, top;
+
+    if (h == 1)
+        top = 5;
+    else
+        top = 10;
+
+    for (i = 0; i < top; i++)
         a = pow(a, i);
     return a;
 }
