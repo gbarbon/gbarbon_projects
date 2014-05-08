@@ -17,7 +17,7 @@
 #include <time.h>
 
 #ifndef OPTI
-#define OPTI ' '
+#define OPTI ""
 #endif
 
 /* CONSTANTS DEFINITION */

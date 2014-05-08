@@ -200,6 +200,17 @@ int main(int argc, char** argv) {
     // heavy load f(A) abilitation
     int load_bool = atoi(argv[3]);
 
+    /*testfile strings*/
+    char func_field[20], *io_field;
+    if (load_bool == 0)
+        snprintf(func_field, sizeof func_field, "low");
+    else
+        snprintf(func_field, sizeof func_field, "func%d", load_bool);
+    if (inout_bool == 0)
+        io_field = "no_io";
+    else
+        io_field = "io";
+
     /*CSV file support*/
     char *op = "cannon", final[256];
     int myid;
@@ -348,7 +359,7 @@ int main(int argc, char** argv) {
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s%s,%d,%d,%d,%d", myid, op, OPTI, numnodes - 1, N, inout_bool, load_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s", myid, op, OPTI, numnodes - 1, N,  io_field, func_field); /*final string generation*/
         StopwatchPrintToFile(final, watch);
 
         // free

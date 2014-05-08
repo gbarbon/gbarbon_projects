@@ -36,7 +36,7 @@ double** mult(double** rows, double** cols, int n, int offset, int load) {
                 /*notice that cols came from B that is already transposed*/
                 res[i][j] += rows[i][k] * cols[j][k];
                 if (load == 0)
-                        res[i][j] += rows[i][k] * cols[j][k];
+                    res[i][j] += rows[i][k] * cols[j][k];
                 else
                     res[i][j] += heavy(rows[i][k], load) * cols[j][k];
             }
@@ -156,13 +156,24 @@ int main(int argc, char *argv[]) {
     /*variables init*/
     mb = sqrt(numnodes - 1);
     offset = n / mb;
-    
+
     // heavy load f(A) abilitation
     int load_bool = atoi(argv[3]);
 
     /*I\O*/
     int inout_bool = atoi(argv[2]);
-    char * homePath = getenv ("HOME"); /*homepath*/
+    char * homePath = getenv("HOME"); /*homepath*/
+
+    /*testfile strings*/
+    char func_field[20], *io_field;
+    if (load_bool == 0)
+        snprintf(func_field, sizeof func_field, "low");
+    else
+        snprintf(func_field, sizeof func_field, "func%d", load_bool);
+    if (inout_bool == 0)
+        io_field = "no_io";
+    else
+        io_field = "io";
 
     /*CSV file support*/
     char *op = "mmfast", final[256];
@@ -194,7 +205,7 @@ int main(int argc, char *argv[]) {
             /*input filename generation*/
             char infile[256];
             snprintf(infile, sizeof infile, "%s/hpc_temp/hpc_input/mat%d.csv", homePath, n);
-            
+
             /* matrix loading */
             A = matrix_loader(infile);
             B = matrix_loader(infile);
@@ -267,7 +278,7 @@ int main(int argc, char *argv[]) {
             /*printmatrix(n, n, res);*/
         } else {
             char outfile[256];
-            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes-1);
+            snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes - 1);
             matrix_writer(n, res, outfile);
         }
         /*free memory of matrices A, B and res*/
@@ -279,7 +290,7 @@ int main(int argc, char *argv[]) {
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
-        snprintf(final, sizeof final, "%d,%s%s,%d,%d,%d,%d", myid, op, OPTI, numnodes - 1, n, inout_bool, load_bool); /*final string generation*/
+        snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s", myid, op, OPTI, numnodes - 1, n, io_field, func_field); /*final string generation*/
         StopwatchPrintToFile(final, watch);
 
     }
