@@ -38,7 +38,7 @@ double** mult(double** rows, double** cols, int n, int offset, int load) {
                 if (load == 0)
                         res[i][j] += rows[i][k] * cols[j][k];
                 else
-                    res[i][j] += heavy(rows[i][k]) * cols[j][k];
+                    res[i][j] += heavy(rows[i][k], load) * cols[j][k];
             }
         }
     }
