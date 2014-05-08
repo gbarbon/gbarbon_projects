@@ -36,10 +36,10 @@ CFILENAME = mmfast.c
 all: update base
 
 base: 
-	$(CC) -o $(NAME) $(CFILENAME) -lm -DOPTI='""'
+	$(CC) -o $(NAME) $(CFILENAME) -lm
 
 strict: 
-	$(CC) $(STRICT) -o $(NAME) $(CFILENAME) -lm -DOPTI='""'
+	$(CC) $(STRICT) -o $(NAME) $(CFILENAME) -lm
 
 opti_s:  
 	$(CC) $(OPTIMIZED) -o $(NAME)-op $(CFILENAME) -lm -DOPTI='"-op"'

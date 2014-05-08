@@ -16,6 +16,10 @@
 #include <math.h>
 #include <time.h>
 
+#ifndef OPTI
+#define OPTI ' '
+#endif
+
 /* CONSTANTS DEFINITION */
 /*const int tags[3] = {1, 2, 3};*/
 
