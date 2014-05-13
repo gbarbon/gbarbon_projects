@@ -43,8 +43,7 @@ def loops():
 	execs = ['hpc_mpi_farm/bin/hpc_mpi_farm']
 	optimization = [' ','-op ']
 	#dims = ['16','64','256']
-	#dims = ['192','768','1920']
-	dims = ['1920']
+	dims = ['192','768','1920']
 	#configs = [' 0 0', ' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
 	configs = [' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',]
 	for nproc in nprocs:
@@ -52,10 +51,9 @@ def loops():
 			for op in optimization:
 				for dim in dims:
 					for config in configs:
-						for n in range(1, 2):
-							temp_args = "mpiexec -n " + nproc + " ./" + exe + op + dim + config
-							args = temp_args.split()
-							common(args)
+						temp_args = "mpiexec -n " + nproc + " ./" + exe + op + dim + config
+						args = temp_args.split()
+						common(args)
 	print '*** Ending loops ***'
 	
 if __name__ == '__main__':
