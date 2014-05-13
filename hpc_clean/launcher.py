@@ -39,13 +39,12 @@ def loops():
 	print '*** Starting loops ***'
 	#nprocs = ['5','17']
 	nprocs = ['5','10','17']
-	#execs = ['hpc_mpi_mm/bin/hpc_mpi_mm', 'hpc_mpi_mm-fast/bin/hpc_mpi_mm-fast', 'hpc_mpi_cannon/bin/hpc_mpi_cannon', 'hpc_mpi_farm/bin/hpc_mpi_farm']
-	execs = ['hpc_mpi_farm/bin/hpc_mpi_farm']
+	execs = ['hpc_mpi_mm/bin/hpc_mpi_mm', 'hpc_mpi_mm-fast/bin/hpc_mpi_mm-fast', 'hpc_mpi_cannon/bin/hpc_mpi_cannon', 'hpc_mpi_farm/bin/hpc_mpi_farm']
 	optimization = [' ','-op ']
 	#dims = ['16','64','256']
 	dims = ['192','768','960']
-	#configs = [' 0 0', ' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
-	configs = [' 0 2', ' 1 0', ' 1 1', ' 1 2',]
+	configs = [' 0 0', ' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
+	
 	for nproc in nprocs:
 		for exe in execs:
 			for op in optimization:
