@@ -43,7 +43,8 @@ def loops():
 	execs = ['hpc_mpi_farm/bin/hpc_mpi_farm']
 	optimization = [' ','-op ']
 	#dims = ['16','64','256']
-	dims = ['192','768','1920']
+	#dims = ['192','768','1920']
+	dims = ['1920']
 	configs = [' 0 0', ' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
 	for nproc in nprocs:
 		for exe in execs:
