@@ -277,9 +277,9 @@ int main(int argc, char *argv[]) {
         if (inout_bool == 0) { /*no output, so no result (or print)*/
             /*printmatrix(n, n, res);*/
         } else {
-            char outfile[256];
+            /*char outfile[256];
             snprintf(outfile, sizeof outfile, "%s/hpc_temp/hpc_output/%s_dim%d_nproc%d.csv", homePath, op, n, numnodes - 1);
-            matrix_writer(n, res, outfile);
+            matrix_writer(n, res, outfile);*/
         }
         /*free memory of matrices A, B and res*/
         freematrix(n, A);
