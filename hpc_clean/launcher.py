@@ -38,7 +38,8 @@ def common(args):
 def loops():
 	print '*** Starting loops ***'
 	#nprocs = ['5','17']
-	nprocs = ['5','10','17']
+	#nprocs = ['5','10','17']
+	nprocs = ['2']
 	execs = ['hpc_mpi_mm/bin/hpc_mpi_mm', 'hpc_mpi_mm-fast/bin/hpc_mpi_mm-fast', 'hpc_mpi_cannon/bin/hpc_mpi_cannon', 'hpc_mpi_farm/bin/hpc_mpi_farm']
 	optimization = [' ','-op ']
 	#dims = ['16','64','256']
