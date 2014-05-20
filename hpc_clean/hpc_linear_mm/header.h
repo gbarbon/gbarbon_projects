@@ -9,12 +9,16 @@
 #define	FUNCTIONS_H
 
 /*includes*/
-/*#include <mpi.h>*/
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
+
+#ifndef OPTI
+#define OPTI ""
+#endif
 
 /* CONSTANTS DEFINITION */
 /*const int tags[3] = {1, 2, 3};*/
@@ -171,6 +175,19 @@ void matrix_transposer(int n, double ** A) {
             A[i][j] = A[j][i];
             A[j][i] = temp;
         }
+}
+
+double heavy(double a, int h) {
+    int i, top;
+
+    if (h == 1)
+        top = 2;
+    else
+        top = 4;
+
+    for (i = 0; i < top; i++)
+        a = pow(a, i);
+    return a;
 }
 
 #endif	/* FUNCTIONS_H */
