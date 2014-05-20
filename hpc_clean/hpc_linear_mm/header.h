@@ -9,7 +9,7 @@
 #define	FUNCTIONS_H
 
 /*includes*/
-//#include <mpi.h>
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

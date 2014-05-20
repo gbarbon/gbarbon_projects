@@ -8,8 +8,8 @@
 #ifndef STOPWATCH_H_
 #define STOPWATCH_H_
 
-#include <time.h>
-//#include <mpi.h>
+//#include <time.h>
+#include <mpi.h>
 
 typedef struct
 {
@@ -28,11 +28,11 @@ Stopwatch StopwatchCreate()
 }
 void StopwatchStart(Stopwatch chrono)
 {
-	chrono->_start = clock(); //MPI_Wtime(); //clock(); //time(0);
+	chrono->_start = MPI_Wtime(); //clock(); //time(0);
 }
 void StopwatchStop(Stopwatch chrono)
 {
-	chrono->_end = clock();
+	chrono->_end = MPI_Wtime();
 }
 float StopwatchGetElapsed(Stopwatch chrono)
 {
@@ -44,15 +44,15 @@ int StopwatchIsValid(Stopwatch chrono)
 }
 void StopwatchPrintResolution()
 {
-	clock_t t1, t2;
+	/*clock_t t1, t2;
 	t1 = t2 = clock();
 
 	// loop until t2 gets a different value
 	while(t1 == t2)
-		t2 = clock();
+		t2 = clock();*/
     
-    /*double tick = MPI_Wtick() * 1000;
-	printf("%f ms.\n", tick);*/
+    double tick = MPI_Wtick() * 1000;
+	printf("%f ms.\n", tick);
 }
 void StopwatchPrintWithComment(const char* message, Stopwatch chrono)
 {

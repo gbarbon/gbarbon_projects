@@ -45,6 +45,7 @@ int main(int argc, char** argv) {
     Stopwatch watch = StopwatchCreate();
 
     N = atoi(argv[1]);
+    MPI_Init(&argc, &argv);
 
     /*I\O*/
     int inout_bool = atoi(argv[2]);
@@ -126,7 +127,7 @@ int main(int argc, char** argv) {
     /*stopwatch stop*/
     StopwatchStop(watch);
     StopwatchPrintWithComment("Master total time: %f\n", watch);
-    myid = (int) clock(); /*my id generation*/
+    myid = (int) MPI_Wtime(); /*my id generation*/
     snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s", myid, op, OPTI, numnodes - 1, N, io_field, func_field); /*final string generation*/
     StopwatchPrintToFile(final, watch);
 
@@ -135,6 +136,8 @@ int main(int argc, char** argv) {
     freematrix(N, B);
     freematrix(N, C);
     free(watch);
+    
+    MPI_Finalize();
 
     return 0;
 }
