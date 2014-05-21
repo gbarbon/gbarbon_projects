@@ -56,7 +56,7 @@ def loops():
 	
 	#loop for 'hpc_linear_mm/bin/hpc_linear_mm'
 	for op in optimization:
-		for dimconfig in dimsconfigs:
+		for dimconfig in dimconfigs:
 			temp_args = "mpiexec -n 1 ./hpc_linear_mm/bin/hpc_linear_mm" + op + dimconfig
 			args = temp_args.split()
 			common(args)
