@@ -49,7 +49,7 @@ def loops():
 	for nproc in nprocs:
 		for exe in execs:
 			for op in optimization:
-				for dimconfig in dimsconfigs:
+				for dimconfig in dimconfigs:
 					temp_args = "mpiexec -n " + nproc + " ./" + exe + op + dimconfig
 					args = temp_args.split()
 					common(args)
