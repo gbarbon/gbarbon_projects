@@ -27,9 +27,9 @@ void matrix_mult(double** A, double** B, double** C, int r, int c, int load) {
         for (j = 0; j < r; j++) {
             for (k = 0; k < c; k++) {
                 if (load == 0)
-                    C[i][j] += A[i][k] * B[l][k];
+                    C[i][j] += A[i][k] * B[k][l];
                 else
-                    C[i][j] += heavy(A[i][k], load) * B[l][k];
+                    C[i][j] += heavy(A[i][k], load) * B[k][l];
             }
             l++;
         }
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    matrix_transposer(N, B);
+    //matrix_transposer(N, B);
 
     C = matrix_creator(N, N);
 
