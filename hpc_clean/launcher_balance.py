@@ -19,13 +19,13 @@ def main():
 def makeall(): 
 	print '*** Make process starting for all versions ***'
 	dirs = ['hpc_mpi_mm','hpc_mpi_mm-fast','hpc_mpi_cannon','hpc_mpi_farm']
-	#options = ['','opti']
+	options = ['','opti']
 	for path in dirs:
 		os.chdir(path) #move into the desired path
-		#for opt in options:
-		shellcom = "make " #+ opt
-		shellcom = shellcom.split()
-		common(shellcom)
+		for opt in options:
+			shellcom = "make " + opt
+			shellcom = shellcom.split()
+			common(shellcom)
 		os.chdir("..") #move back to the previous path
 	print '*** Make process finished ***'
 	
