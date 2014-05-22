@@ -22,10 +22,10 @@ def makeall():
 	#options = ['','opti']
 	for path in dirs:
 		os.chdir(path) #move into the desired path
-		for opt in options:
-			shellcom = "make " #+ opt
-			shellcom = shellcom.split()
-			common(shellcom)
+		#for opt in options:
+		shellcom = "make " #+ opt
+		shellcom = shellcom.split()
+		common(shellcom)
 		os.chdir("..") #move back to the previous path
 	print '*** Make process finished ***'
 	
