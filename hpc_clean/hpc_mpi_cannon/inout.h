@@ -2,7 +2,6 @@
  * File:  
  * Author: 
  *
- * 
  */
 
 #ifndef INOUT_H
