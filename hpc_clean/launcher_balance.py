@@ -19,11 +19,11 @@ def main():
 def makeall(): 
 	print '*** Make process starting for all versions ***'
 	dirs = ['hpc_mpi_mm','hpc_mpi_mm-fast','hpc_mpi_cannon','hpc_mpi_farm']
-	options = ['','opti']
+	#options = ['','opti']
 	for path in dirs:
 		os.chdir(path) #move into the desired path
 		for opt in options:
-			shellcom = "make " + opt
+			shellcom = "make " #+ opt
 			shellcom = shellcom.split()
 			common(shellcom)
 		os.chdir("..") #move back to the previous path
@@ -43,7 +43,7 @@ def loops():
 	#optimization = [' ','-op ']
 	#dims = ['16','64','256']
 	#dims = ['192','768','960']
-	dims = ['192','960']
+	dims = ['192','1920']
 	configs = [' 0 0', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
 	
 	for nproc in nprocs:
