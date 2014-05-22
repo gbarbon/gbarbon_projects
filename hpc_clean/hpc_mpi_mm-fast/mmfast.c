@@ -184,11 +184,13 @@ int main(int argc, char *argv[]) {
 
     /*stopwatch start*/
     Stopwatch watch = StopwatchCreate();
+    Stopwatch watchs = StopwatchCreate();
 
     if (myrank == 0) {
 
         /*stopwatch start*/
         StopwatchStart(watch);
+        StopwatchStart(watchs);
 
         /*input type evaluation*/
         if (inout_bool == 0) { /*no input, so randomly generated matrix*/
@@ -223,9 +225,13 @@ int main(int argc, char *argv[]) {
 
         /*printf("Master has just passed the master_sender funct\n\n");*/
 
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
+
     } else {
-        /*stopwatch start*/
-        //StopwatchStart(watch);
+
+        /*start timer*/
+        StopwatchStart(watchs);
 
         /*data structure for incoming rows & cols*/
         double** rows;
@@ -257,6 +263,10 @@ int main(int argc, char *argv[]) {
 
         /*send work back to master and free matrix*/
         MPI_Send(res_vect, offset * offset, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD);
+
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
+
         freematrix(offset, res);
         free(res_vect);
 
@@ -269,6 +279,9 @@ int main(int argc, char *argv[]) {
 
     /*collect all the stuff*/
     if (myrank == 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         /*receive pieces and compute final matrix*/
         double** res;
         res = master_receiver(n, offset);
@@ -287,6 +300,9 @@ int main(int argc, char *argv[]) {
         freematrix(n, res);
 
         /*stopwatch stop*/
+        StopwatchStop(watchs);
+
+        /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
@@ -295,7 +311,13 @@ int main(int argc, char *argv[]) {
 
     }
 
+    //StopwatchPrintWithComment("Slave total time: %f\n", watchs);
+    myid = (int) MPI_Wtime(); /*my id generation*/
+    snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s,%d", myid, op, OPTI, numnodes - 1, n, io_field, func_field, myrank); /*final string generation*/
+    StopwatchPrintToFile2(final, watchs);
+
     free(watch);
+    free(watchs);
     MPI_Finalize();
     return 0;
 }

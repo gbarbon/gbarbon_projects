@@ -143,6 +143,7 @@ int main(int argc, char** argv) {
 
     /*stopwatch*/
     Stopwatch watch = StopwatchCreate();
+    Stopwatch watchs = StopwatchCreate();
 
     MPI_Init(&argc, &argv);
 
@@ -186,6 +187,7 @@ int main(int argc, char** argv) {
 
         /*start timer*/
         StopwatchStart(watch);
+        StopwatchStart(watchs);
 
         /*input type evaluation*/
         if (inout_bool == 0) { /*no input, so randomly generated matrix*/
@@ -230,8 +232,13 @@ int main(int argc, char** argv) {
         }
 
         printf("MASTER. Pieces of A and B sent.\n");
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
 
     } else {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         // receive my part of A and B
         numElements = dim*dim;
         lato = (int) sqrt(nblock);
@@ -324,6 +331,9 @@ int main(int argc, char** argv) {
         double *C_vett = matrix_vectorizer(dim, dim, C);
         MPI_Send(C_vett, numElements, MPI_DOUBLE, master, TAG, MPI_COMM_WORLD);
 
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
+
         // free
         freematrix(dim, A);
         freematrix(dim, B);
@@ -336,6 +346,9 @@ int main(int argc, char** argv) {
     }
 
     if (myrank == master) {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         offset = 0;
 
         double **tempC = matrix_creator(nblock, numElements);
@@ -360,6 +373,9 @@ int main(int argc, char** argv) {
         }
 
         /*stopwatch stop*/
+        StopwatchStop(watchs);
+
+        /*stopwatch stop*/
         StopwatchStop(watch);
         StopwatchPrintWithComment("Master total time: %f\n", watch);
         myid = (int) MPI_Wtime(); /*my id generation*/
@@ -376,7 +392,13 @@ int main(int argc, char** argv) {
         free(C_vett);
     }
 
+    //StopwatchPrintWithComment("Slave total time: %f\n", watchs);
+    myid = (int) MPI_Wtime(); /*my id generation*/
+    snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s,%d", myid, op, OPTI, numnodes - 1, N, io_field, func_field, myrank); /*final string generation*/
+    StopwatchPrintToFile2(final, watchs);
+
     free(watch);
+    free(watchs);
     MPI_Finalize();
 
     return 0;

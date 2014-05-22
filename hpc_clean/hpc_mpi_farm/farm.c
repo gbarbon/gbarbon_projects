@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
 
     /*stopwatch*/
     Stopwatch watch = StopwatchCreate();
+    Stopwatch watchs = StopwatchCreate();
 
     // allocate A, B, and C --- note that you want these to be
     // contiguously allocated.  Workers need less memory allocated.
@@ -56,6 +57,7 @@ int main(int argc, char** argv) {
 
         /*start timer*/
         StopwatchStart(watch);
+        StopwatchStart(watchs);
 
         /*input type evaluation*/
         if (inout_bool == 0) { /*no input, so randomly generated matrix*/
@@ -86,17 +88,28 @@ int main(int argc, char** argv) {
         Bvett = (double *) malloc(sizeof (double) * N * N);
 
         printf("Myrank is %d. A,B,C allocated\n", myrank);
+
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
     }
 
     //debug
 
     if (myrank != 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         Bvett = (double *) malloc(sizeof (double) * N * N);
         rigaA = (double *) malloc(N * sizeof (double));
         ris = (double *) malloc(N * sizeof (double));
+
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
     }
 
     if (myrank == 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
 
         Bvett = matrix_vectorizer(N, N, B);
 
@@ -104,13 +117,25 @@ int main(int argc, char** argv) {
             MPI_Send(Bvett, N*N, MPI_DOUBLE, i + 1, TAG, MPI_COMM_WORLD);
         }
         printf("Myrank is %d. B inviated\n", myrank);
+
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
+
     } else {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         MPI_Recv(Bvett, N*N, MPI_DOUBLE, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         B = devectorizer(N, N, Bvett);
         printf("Myrank is %d. B received\n", myrank);
+
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
     }
 
     if (myrank == 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
 
         // invio di una riga di A ad ogni nodo slave
         for (i = 0; i < numnodes - 1; i++) {
@@ -126,9 +151,14 @@ int main(int argc, char** argv) {
         }
         printf("Myrank is %d. Send effettuate\n", myrank);
 
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
     }
 
     if (myrank != 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         // ricevo l'indice e se è != -1 ricevo la riga di A ed eseguo la moltiplicazione
         MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
@@ -154,10 +184,15 @@ int main(int argc, char** argv) {
             MPI_Recv(&index, 1, MPI_INT, 0, myrank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
 
+        /*stopwatch stop*/
+        StopwatchStop(watchs);
 
     }
 
     if (myrank == 0) {
+        /*start timer*/
+        StopwatchStart(watchs);
+
         recv = 0;
         // ricevo dagli slave le righe calcolate
         while (recv < N) {
@@ -192,10 +227,13 @@ int main(int argc, char** argv) {
             }
 
             /*stopwatch stop*/
+            StopwatchStop(watchs);
+
+            /*stopwatch stop*/
             StopwatchStop(watch);
             StopwatchPrintWithComment("Master total time: %f\n", watch);
             myid = (int) MPI_Wtime(); /*my id generation*/
-            snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s", myid, op, OPTI, numnodes - 1, N,  io_field, func_field); /*final string generation*/
+            snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s", myid, op, OPTI, numnodes - 1, N, io_field, func_field); /*final string generation*/
             StopwatchPrintToFile(final, watch);
 
             freematrix(N, A);
@@ -205,7 +243,14 @@ int main(int argc, char** argv) {
 
     freematrix(N, B);
     free(Bvett);
+
+    //StopwatchPrintWithComment("Slave total time: %f\n", watchs);
+    myid = (int) MPI_Wtime(); /*my id generation*/
+    snprintf(final, sizeof final, "%d,%s%s,%d,%d,%s,%s,%d", myid, op, OPTI, numnodes - 1, N, io_field, func_field, myrank); /*final string generation*/
+    StopwatchPrintToFile2(final, watchs);
+
     free(watch);
+    free(watchs);
 
     if (myrank != 0) {
         free(rigaA);
