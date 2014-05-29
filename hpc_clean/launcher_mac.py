@@ -44,7 +44,7 @@ def loops():
 	#dims = ['16','64','256']
 	#dims = ['192','768','960']
 	#configs = [' 0 0', ' 0 1', ' 0 2', ' 1 0', ' 1 1', ' 1 2',] #first digist is for i/o on/off, second digit is for load_func low/medium/high
-	dimconfigs = ['192 0 0','1920 1 2']
+	dimconfigs = ['192 0 0','960 1 2']
 	
 	for nproc in nprocs:
 		for exe in execs:
