@@ -1,8 +1,6 @@
 /*
  * Stopwatch.h
  *
- *  Created on: 08/mag/2013
- *      Author: henry
  */
 
 #ifndef STOPWATCH_H_
